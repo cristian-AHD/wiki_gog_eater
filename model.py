@@ -4,9 +4,19 @@ from enum import Enum
 
 
 class ElementoEnum(str, Enum):
-    fuego = "Fuego"
-    agua = "Agua"
-    rayo = "Rayo"
-    hielo = "Hielo"
-    divino = "Divino"
-    neutro = "Neutro"
+    fuego = "Fuego/(Blaze)"
+    rayo = "Electro/(Spark)"
+    hielo = "Hielo/(Freeze)"
+    divino = "Divino/(Divine)"
+    veneno = "Veneno/(Poison)"
+
+class TipoEspadaEnum(str, Enum):
+    corta = "Corta"
+    Larga = "Larga"
+    Pesada = "Pesada"
+
+class TipoCanonEnum(str, Enum):
+    asalto = "Asalto"
+    francotirador = "Francotirador"
+    escopeta = "Escopeta"
+
