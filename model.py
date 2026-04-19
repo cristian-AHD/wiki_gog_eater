@@ -33,3 +33,19 @@ class AragamiCreate(BaseModel):
     elemento: ElementoEnum
     debilidades: list[str] = Field(default_factory=list)
     descripcion: Optional[str] = None
+
+
+class GodArc(BaseModel):
+    id: int
+    nombre: str = Field(..., min_length=1, max_length=100)
+    tipo_hoja: TipoEspadaEnum
+    tipo_disparo: TipoCanonEnum
+    elemento: ElementoEnum
+    descripcion: Optional[str] = None
+
+class GodArcCreate(BaseModel):
+    nombre: str = Field(..., min_length=1, max_length=100)
+    tipo_hoja: TipoEspadaEnum
+    tipo_disparo: TipoCanonEnum
+    elemento: ElementoEnum
+    descripcion: Optional[str] = None
