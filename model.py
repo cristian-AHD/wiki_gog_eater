@@ -49,3 +49,17 @@ class GodArcCreate(BaseModel):
     tipo_disparo: TipoCanonEnum
     elemento: ElementoEnum
     descripcion: Optional[str] = None
+
+
+class GodEater(BaseModel):
+    id: int
+    nombre: str = Field(..., min_length=1, max_length=100)
+    rango: str
+    god_arc_id: Optional[int] = None
+    descripcion: Optional[str] = None
+
+class GodEaterCreate(BaseModel):
+    nombre: str = Field(..., min_length=1, max_length=100)
+    rango: str
+    god_arc_id: Optional[int] = None
+    descripcion: Optional[str] = None
