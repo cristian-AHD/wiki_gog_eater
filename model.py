@@ -2,7 +2,6 @@ from pydantic import BaseModel, Field
 from typing import Optional
 from enum import Enum
 
-
 class ElementoEnum(str, Enum):
     fuego = "Fuego/(Blaze)"
     rayo = "Electro/(Spark)"
@@ -20,3 +19,17 @@ class TipoCanonEnum(str, Enum):
     francotirador = "Francotirador"
     escopeta = "Escopeta"
 
+class Aragami(BaseModel):
+    id: int
+    nombre: str = Field(..., min_length=1, max_length=100)
+    tipo: str
+    elemento: ElementoEnum
+    debilidades: list[str] = Field(default_factory=list)
+    descripcion: Optional[str] = None
+
+class AragamiCreate(BaseModel):
+    nombre: str = Field(..., min_length=1, max_length=100)
+    tipo: str
+    elemento: ElementoEnum
+    debilidades: list[str] = Field(default_factory=list)
+    descripcion: Optional[str] = None
