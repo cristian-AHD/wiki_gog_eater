@@ -2,15 +2,27 @@ from fastapi import FastAPI, HTTPException
 from model import (
     Aragami, AragamiCreate,
     GodArc, GodArcCreate,
-    GodEater, GodEaterCreate,
+    GodEater, GodEaterCreate
 )
 
 app = FastAPI()
 
 
-@app.get("/aragami", response_model=list[Aragami], tags=["Aragami"])
+aragami_db = []
+godarc_db = []
+godeater_db = []
+
+@app.get("/aragami")
 def listar_aragami():
-    return aragami_db.get_all()
+    return [x for x in aragami_db if x.estado == "Activo"]
+
+
+@app.get("/aragami/{id}")
+def obtener_aragami(id: int):
+    for x in aragami_db:
+        if x.id == id:
+            return x
+    raise HTTPException(404, "Aragami no encontrado")
 
 
 @app.get("/aragami/{aragami_id}", response_model=Aragami, tags=["Aragami"])
