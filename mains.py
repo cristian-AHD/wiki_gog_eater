@@ -90,26 +90,6 @@ def crear_godarc(data: GodArcCreate):
     godarc_db.append(nuevo)
     return nuevo
 
-@app.get("/godarc")
-def listar_godarc():
-    return [x for x in godarc_db if x.estado == "Activo"]
-
-
-@app.post("/godarc")
-def crear_godarc(data: GodArcCreate):
-    nuevo = GodArc(
-        id=len(godarc_db) + 1,
-        nombre=data.nombre,
-        tipo_hoja=data.tipo_hoja,
-        tipo_disparo=data.tipo_disparo,
-        elemento=data.elemento,
-        descripcion=data.descripcion,
-        estado="Activo"
-    )
-    godarc_db.append(nuevo)
-    return nuevo
-
-
 @app.delete("/godarc/{id}")
 def eliminar_godarc(id: int):
     for x in godarc_db:
@@ -118,4 +98,46 @@ def eliminar_godarc(id: int):
             return {"mensaje": "GodArc inactivado"}
     raise HTTPException(404, "GodArc no encontrado")
 
+@app.get("/godeater")
+def listar_godeater():
+    return [x for x in godeater_db if x.estado == "Activo"]
 
+
+@app.post("/godeater")
+def crear_godeater(data: GodEaterCreate):
+
+    if data.god_arc_id is not None:
+        existe = False
+        for g in godarc_db:
+            if g.id == data.god_arc_id:
+                existe = True
+
+        if not existe:
+            raise HTTPException(404, "GodArc relacionado no existe")
+
+    nuevo = GodEater(
+        id=len(godeater_db) + 1,
+        nombre=data.nombre,
+        rango=data.rango,
+        god_arc_id=data.god_arc_id,
+        descripcion=data.descripcion,
+        estado="Activo"
+    )
+
+    godeater_db.append(nuevo)
+    return nuevo
+
+
+@app.get("/godeater/rango/{rango}")
+def filtrar_rango(rango: str):
+    return [x for x in godeater_db if x.rango.lower() == rango.lower()]
+
+
+@app.delete("/godeater/{id}")
+def eliminar_godeater(id: int):
+    for x in godeater_db:
+        if x.id == id:
+            x.estado = "Inactivo"
+            return {"mensaje": "GodEater inactivado"}
+
+    raise HTTPException(404, "GodEater no encontrado")
