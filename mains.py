@@ -38,4 +38,18 @@ def crear_aragami(data: AragamiCreate):
     aragami_db.append(nuevo)
     return nuevo
 
-
+@app.put("/aragami/{id}")
+def actualizar_aragami(id: int, data: AragamiCreate):
+    for i, x in enumerate(aragami_db):
+        if x.id == id:
+            aragami_db[i] = Aragami(
+                id=id,
+                nombre=data.nombre,
+                tipo=data.tipo,
+                elemento=data.elemento,
+                debilidades=data.debilidades,
+                descripcion=data.descripcion,
+                estado="Activo"
+            )
+            return aragami_db[i]
+    raise HTTPException(404, "Aragami no encontrado")
