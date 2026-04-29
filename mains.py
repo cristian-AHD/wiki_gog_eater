@@ -62,4 +62,13 @@ def eliminar_aragami(id: int):
             return {"mensaje": "Aragami inactivado"}
     raise HTTPException(404, "Aragami no encontrado")
 
+@app.get("/aragami/nombre/{nombre}")
+def buscar_nombre(nombre: str):
+    return [x for x in aragami_db if x.nombre.lower() == nombre.lower()]
+
+
+@app.get("/aragami/elemento/{elemento}")
+def filtrar_elemento(elemento: str):
+    return [x for x in aragami_db if x.elemento == elemento]
+
 
