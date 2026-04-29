@@ -3,11 +3,12 @@ from typing import Optional
 from enum import Enum
 
 class ElementoEnum(str, Enum):
-    fuego = "Fuego/(Blaze)"
-    rayo = "Electro/(Spark)"
-    hielo = "Hielo/(Freeze)"
-    divino = "Divino/(Divine)"
-    veneno = "Veneno/(Poison)"
+    fuego = "Fuego"
+    rayo = "Rayo"
+    hielo = "Hielo"
+    divino = "Divino"
+    normal = "Normal"
+    veneno = "Veneno"
 
 class TipoEspadaEnum(str, Enum):
     corta = "Corta"
