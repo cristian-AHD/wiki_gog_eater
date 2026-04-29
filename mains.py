@@ -24,10 +24,18 @@ def obtener_aragami(id: int):
             return x
     raise HTTPException(404, "Aragami no encontrado")
 
+@app.post("/aragami")
+def crear_aragami(data: AragamiCreate):
+    nuevo = Aragami(
+        id=len(aragami_db) + 1,
+        nombre=data.nombre,
+        tipo=data.tipo,
+        elemento=data.elemento,
+        debilidades=data.debilidades,
+        descripcion=data.descripcion,
+        estado="Activo"
+    )
+    aragami_db.append(nuevo)
+    return nuevo
 
-@app.get("/aragami/{aragami_id}", response_model=Aragami, tags=["Aragami"])
-def obtener_aragami(aragami_id: int):
-    obj = aragami_db.get_by_id(aragami_id)
-    if not obj:
-        raise HTTPException(status_code=404, detail="Aragami no encontrado")
-    return obj
+
