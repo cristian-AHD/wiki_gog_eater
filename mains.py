@@ -53,3 +53,13 @@ def actualizar_aragami(id: int, data: AragamiCreate):
             )
             return aragami_db[i]
     raise HTTPException(404, "Aragami no encontrado")
+
+@app.delete("/aragami/{id}")
+def eliminar_aragami(id: int):
+    for x in aragami_db:
+        if x.id == id:
+            x.estado = "Inactivo"
+            return {"mensaje": "Aragami inactivado"}
+    raise HTTPException(404, "Aragami no encontrado")
+
+
