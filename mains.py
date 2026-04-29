@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from Crud import CRUDCSV
 from model import (
     Aragami, AragamiCreate,
     GodArc, GodArcCreate,
@@ -7,19 +8,17 @@ from model import (
 
 app = FastAPI()
 
-
-aragami_db = []
-godarc_db = []
-godeater_db = []
+aragami_db = CRUDCSV("aragami.csv")
+godarc_db = CRUDCSV("godarc.csv")
+godeater_db = CRUDCSV("godeater.csv")
 
 @app.get("/aragami")
-def listar_aragami():
-    return [x for x in aragami_db if x.estado == "Activo"]
-
+def lista_aragami():
+    return [x for x in CRUDCSV("aragami.csv") if x.estado == "Activo"]
 
 @app.get("/aragami/{id}")
-def obtener_aragami(id: int):
-    for x in aragami_db:
+def Buscar_aragami(id: int):
+    for x in CRUDCSV("aragami.csv"):
         if x.id == id:
             return x
     raise HTTPException(404, "Aragami no encontrado")
@@ -27,7 +26,7 @@ def obtener_aragami(id: int):
 @app.post("/aragami")
 def crear_aragami(data: AragamiCreate):
     nuevo = Aragami(
-        id=len(aragami_db) + 1,
+        id=len(CRUDCSV("aragami.csv")) + 1,
         nombre=data.nombre,
         tipo=data.tipo,
         elemento=data.elemento,
