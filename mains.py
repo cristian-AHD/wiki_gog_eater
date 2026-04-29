@@ -87,5 +87,35 @@ def crear_godarc(data: GodArcCreate):
         descripcion=data.descripcion,
         estado="Activo"
     )
+    godarc_db.append(nuevo)
+    return nuevo
+
+@app.get("/godarc")
+def listar_godarc():
+    return [x for x in godarc_db if x.estado == "Activo"]
+
+
+@app.post("/godarc")
+def crear_godarc(data: GodArcCreate):
+    nuevo = GodArc(
+        id=len(godarc_db) + 1,
+        nombre=data.nombre,
+        tipo_hoja=data.tipo_hoja,
+        tipo_disparo=data.tipo_disparo,
+        elemento=data.elemento,
+        descripcion=data.descripcion,
+        estado="Activo"
+    )
+    godarc_db.append(nuevo)
+    return nuevo
+
+
+@app.delete("/godarc/{id}")
+def eliminar_godarc(id: int):
+    for x in godarc_db:
+        if x.id == id:
+            x.estado = "Inactivo"
+            return {"mensaje": "GodArc inactivado"}
+    raise HTTPException(404, "GodArc no encontrado")
 
 
