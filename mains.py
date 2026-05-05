@@ -9,12 +9,12 @@ from model import (
 app = FastAPI()
 
 aragami_db = CRUDCSV("aragami.csv")
-godarc_db = CRUDCSV("godarc.csv")
+godarc_db  = CRUDCSV("godarc.csv")
 godeater_db = CRUDCSV("godeater.csv")
 
 @app.get("/aragami")
 def lista_aragami():
-    return [x for x in CRUDCSV("aragami.csv") if x.estado == "Activo"]
+    return [x for x in aragami_db if x["estado"] == "Activo"]
 
 @app.get("/aragami/{id}")
 def Buscar_aragami(id: int):
@@ -40,24 +40,26 @@ def crear_aragami(data: AragamiCreate):
 @app.put("/aragami/{id}")
 def actualizar_aragami(id: int, data: AragamiCreate):
     for i, x in enumerate(aragami_db):
-        if x.id == id:
-            aragami_db[i] = Aragami(
+        if int(x["id"]) == id:
+            actualizado = Aragami(
                 id=id,
                 nombre=data.nombre,
                 tipo=data.tipo,
                 elemento=data.elemento,
                 debilidades=data.debilidades,
                 descripcion=data.descripcion,
-                estado="Activo"
+                estado=x["estado"]
             )
-            return aragami_db[i]
+            aragami_db[i] = actualizado
+            return actualizado
     raise HTTPException(404, "Aragami no encontrado")
 
 @app.delete("/aragami/{id}")
 def eliminar_aragami(id: int):
-    for x in aragami_db:
-        if x.id == id:
-            x.estado = "Inactivo"
+    for i, x in enumerate(aragami_db):
+        if int(x["id"]) == id:
+            x["estado"] = "Inactivo"
+            aragami_db.save()
             return {"mensaje": "Aragami inactivado"}
     raise HTTPException(404, "Aragami no encontrado")
 
@@ -83,7 +85,6 @@ def crear_godarc(data: GodArcCreate):
         tipo_hoja=data.tipo_hoja,
         tipo_disparo=data.tipo_disparo,
         elemento=data.elemento,
-        descripcion=data.descripcion,
         estado="Activo"
     )
     godarc_db.append(nuevo)
@@ -91,9 +92,10 @@ def crear_godarc(data: GodArcCreate):
 
 @app.delete("/godarc/{id}")
 def eliminar_godarc(id: int):
-    for x in godarc_db:
-        if x.id == id:
-            x.estado = "Inactivo"
+    for i, x in enumerate(godarc_db):
+        if int(x["id"]) == id:
+            x["estado"] = "Inactivo"
+            godarc_db.save()
             return {"mensaje": "GodArc inactivado"}
     raise HTTPException(404, "GodArc no encontrado")
 
@@ -122,21 +124,18 @@ def crear_godeater(data: GodEaterCreate):
         descripcion=data.descripcion,
         estado="Activo"
     )
-
     godeater_db.append(nuevo)
     return nuevo
-
 
 @app.get("/godeater/rango/{rango}")
 def filtrar_rango(rango: str):
     return [x for x in godeater_db if x.rango.lower() == rango.lower()]
 
-
 @app.delete("/godeater/{id}")
 def eliminar_godeater(id: int):
-    for x in godeater_db:
-        if x.id == id:
-            x.estado = "Inactivo"
+    for i, x in enumerate(godeater_db):
+        if int(x["id"]) == id:
+            x["estado"] = "Inactivo"
+            godeater_db.save()
             return {"mensaje": "GodEater inactivado"}
-
     raise HTTPException(404, "GodEater no encontrado")

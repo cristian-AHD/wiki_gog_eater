@@ -27,6 +27,7 @@ class Aragami(BaseModel):
     elemento: ElementoEnum
     debilidades: list[str] = Field(default_factory=list)
     descripcion: Optional[str] = None
+    estado: str = "Activo"
 
 class AragamiCreate(BaseModel):
     nombre: str = Field(..., min_length=1, max_length=100)
@@ -43,6 +44,7 @@ class GodArc(BaseModel):
     tipo_disparo: TipoCanonEnum
     elemento: ElementoEnum
     descripcion: Optional[str] = None
+    estado: str = "Activo"
 
 class GodArcCreate(BaseModel):
     nombre: str = Field(..., min_length=1, max_length=100)
@@ -58,6 +60,7 @@ class GodEater(BaseModel):
     rango: str
     god_arc_id: Optional[int] = None
     descripcion: Optional[str] = None
+    estado: str = "Activo"
 
 class GodEaterCreate(BaseModel):
     nombre: str = Field(..., min_length=1, max_length=100)
