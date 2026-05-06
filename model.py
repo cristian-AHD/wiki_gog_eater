@@ -45,7 +45,7 @@ class AragamiCreate(BaseModel):
 
 
 class ParteArma(BaseModel):
-    """Atributos comunes a todas las partes del GodArc."""
+    nombre: str = Field(..., min_length=1, max_length=100)
     sunder: int = Field(0, ge=0, description="Puntos de corte")
     crush: int = Field(0, ge=0, description="Puntos de aplastamiento")
     pierce: int = Field(0, ge=0, description="Puntos de perforación")

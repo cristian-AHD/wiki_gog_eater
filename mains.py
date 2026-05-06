@@ -66,7 +66,8 @@ def buscar_por_nombre(nombre: str):
 
 @app.get("/aragami/elemento/{elemento}")
 def filtrar_por_elemento(elemento: str):
-    return [x for x in aragami_db if x["elemento"].lower() == elemento.lower()]
+    elemento = elemento.capitalize()  # Normalizar: "fuego" -> "Fuego"
+    return [x for x in aragami_db if elemento in x.get("debilidades", [])]
 
 
 @app.get("/godarc")

@@ -11,27 +11,70 @@ class CRUDCSV:
 
         if os.path.exists(archivo) and os.path.getsize(archivo) > 0:
             with open(archivo, newline="", encoding="utf-8") as f:
-                self._datos = list(csv.DictReader(f))
+                reader = csv.DictReader(f)
+                for row in reader:
+                    # Intentar parsear campos JSON
+                    for key, value in row.items():
+                        if value and value.startswith(('{', '[')):
+                            try:
+                                row[key] = json.loads(value)
+                            except:
+                                pass
+                    self._datos.append(row)
 
     def _guardar(self):
         if not self._datos:
+            if not os.path.exists(self.archivo):
+                with open(self.archivo, "w", newline="", encoding="utf-8") as f:
+                    pass
             return
+
+        # Obtener fieldnames de la primera fila
+        fieldnames = list(self._datos[0].keys())
+
         with open(self.archivo, "w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=self._datos[0].keys())
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
-            writer.writerows(self._datos)
+
+            for row in self._datos:
+                # Convertir a strings para CSV
+                csv_row = {}
+                for k, v in row.items():
+                    if isinstance(v, (dict, list)):
+                        csv_row[k] = json.dumps(v, ensure_ascii=False)
+                    else:
+                        csv_row[k] = v if v is not None else ""
+                writer.writerow(csv_row)
 
     def _a_dict(self, item):
         if not hasattr(item, "model_dump"):
             return item
-        return {
-            k: (json.dumps(v) if isinstance(v, list) else ("" if v is None else getattr(v, "value", v)))
-            for k, v in item.model_dump().items()
-        }
 
-    def __len__(self):      return len(self._datos)
-    def __iter__(self):     return iter(self._datos)
-    def __getitem__(self, i): return self._datos[i]
+        data = item.model_dump()
+        result = {}
+
+        for k, v in data.items():
+            if v is None:
+                result[k] = ""
+            elif isinstance(v, (dict, list)):
+                result[k] = v
+            elif hasattr(v, "value"):
+                result[k] = v.value
+            elif hasattr(v, "__dict__"):
+                result[k] = v.model_dump() if hasattr(v, "model_dump") else str(v)
+            else:
+                result[k] = v
+
+        return result
+
+    def __len__(self):
+        return len(self._datos)
+
+    def __iter__(self):
+        return iter(self._datos)
+
+    def __getitem__(self, i):
+        return self._datos[i]
 
     def __setitem__(self, i, value):
         self._datos[i] = self._a_dict(value)

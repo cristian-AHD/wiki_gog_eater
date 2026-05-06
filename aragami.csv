@@ -1,3 +1,3 @@
-id,nombre,tipo,elemento,debilidades,descripcion,estado
-1,Ogrotails,Pequeño,Normal,"[""Fuego"", ""Rayo"", ""Hielo""]",Es un aragami pequeño con una gran cola y cabeza de ogro,Inactivo
-2,Ogrotails,Pequeño,Normal,"[""Fuego"", ""Rayo"", ""Hielo""]",Es un aragami pequeño con una gran cola y cabeza de ogro,Inactivo
+id,nombre,tipo,debilidades,descripcion
+1,cocoon maidens,pequeño,"[""Fuego"", ""Hielo"", ""Rayo""]",aragami unico con forma de capullo
+2,Ogrotails,pequeño,"[""Fuego"", ""Rayo"", ""Hielo""]",aragami con una cola grande y cabeza de ogro
