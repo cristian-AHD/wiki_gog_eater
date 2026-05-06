@@ -13,7 +13,6 @@ class CRUDCSV:
             with open(archivo, newline="", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 for row in reader:
-                    # Intentar parsear campos JSON
                     for key, value in row.items():
                         if value and value.startswith(('{', '[')):
                             try:
@@ -91,3 +90,28 @@ class CRUDCSV:
 
     def save(self):
         self._guardar()
+
+
+class Historial:
+
+    def __init__(self):
+        self._historial = []
+
+    def registrar(self, tipo: str, id_eliminado: int, nombre: str):
+        self._historial.append({
+            "tipo": tipo,
+            "id_eliminado": id_eliminado,
+            "nombre_eliminado": nombre
+        })
+
+    def obtener_todos(self):
+        return self._historial.copy()
+
+    def obtener_por_tipo(self, tipo: str):
+        return [h for h in self._historial if h["tipo"] == tipo]
+
+    def limpiar(self):
+        self._historial.clear()
+
+    def __len__(self):
+        return len(self._historial)

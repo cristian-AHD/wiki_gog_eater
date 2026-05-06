@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from Crud import CRUDCSV
+from Crud import CRUDCSV, Historial
 from model import (
     Aragami, AragamiCreate,
     GodArc, GodArcCreate,
@@ -11,6 +11,8 @@ app = FastAPI()
 aragami_db = CRUDCSV("aragami.csv")
 godarc_db  = CRUDCSV("godarc.csv")
 godeater_db = CRUDCSV("godeater.csv")
+
+historial = Historial()
 
 @app.get("/aragami")
 def listar_aragami():
@@ -52,12 +54,17 @@ def actualizar_aragami(id: int, data: AragamiCreate):
             return actualizado
     raise HTTPException(404, "Aragami no encontrado")
 
+
 @app.delete("/aragami/{id}")
 def eliminar_aragami(id: int):
     for i, x in enumerate(aragami_db):
         if int(x["id"]) == id:
+            # Guardar en historial antes de eliminar
+            nombre = x.get("nombre", "Desconocido")
+            historial.registrar("Aragami", id, nombre)
+
             aragami_db.delete(i)
-            return {"mensaje": "Aragami eliminado"}
+            return {"mensaje": "Aragami eliminado", "id_eliminado": id, "nombre": nombre}
     raise HTTPException(404, "Aragami no encontrado")
 
 @app.get("/aragami/nombre/{nombre}")
@@ -66,7 +73,7 @@ def buscar_por_nombre(nombre: str):
 
 @app.get("/aragami/elemento/{elemento}")
 def filtrar_por_elemento(elemento: str):
-    elemento = elemento.capitalize()  # Normalizar: "fuego" -> "Fuego"
+    elemento = elemento.capitalize()
     return [x for x in aragami_db if elemento in x.get("debilidades", [])]
 
 
@@ -112,12 +119,17 @@ def actualizar_godarc(id: int, data: GodArcCreate):
             return actualizado
     raise HTTPException(404, "GodArc no encontrado")
 
+
 @app.delete("/godarc/{id}")
 def eliminar_godarc(id: int):
     for i, x in enumerate(godarc_db):
         if int(x["id"]) == id:
+            # Guardar en historial antes de eliminar
+            nombre = x.get("nombre", "Desconocido")
+            historial.registrar("GodArc", id, nombre)
+
             godarc_db.delete(i)
-            return {"mensaje": "GodArc eliminado"}
+            return {"mensaje": "GodArc eliminado", "id_eliminado": id, "nombre": nombre}
     raise HTTPException(404, "GodArc no encontrado")
 
 
@@ -176,11 +188,37 @@ def actualizar_godeater(id: int, data: GodEaterCreate):
 def eliminar_godeater(id: int):
     for i, x in enumerate(godeater_db):
         if int(x["id"]) == id:
+            nombre = x.get("nombre", "Desconocido")
+            historial.registrar("GodEater", id, nombre)
+
             godeater_db.delete(i)
-            return {"mensaje": "GodEater eliminado"}
+            return {"mensaje": "GodEater eliminado", "id_eliminado": id, "nombre": nombre}
     raise HTTPException(404, "GodEater no encontrado")
 
 
 @app.get("/godeater/rango/{rango}")
 def filtrar_rango(rango: str):
     return [x for x in godeater_db if x["rango"].lower() == rango.lower()]
+
+
+@app.get("/historial")
+def ver_historial():
+    return historial.obtener_todos()
+
+@app.get("/historial/{tipo}")
+def ver_historial_por_tipo(tipo: str):
+    tipos_validos = ["Aragami", "GodArc", "GodEater"]
+    if tipo not in tipos_validos:
+        raise HTTPException(400, f"Tipo inválido. Use: {tipos_validos}")
+
+    resultado = historial.obtener_por_tipo(tipo)
+    return resultado
+
+@app.delete("/historial/limpiar")
+def limpiar_historial():
+    historial.limpiar()
+    return {"mensaje": "Historial limpiado exitosamente"}
+
+@app.get("/historial/cantidad")
+def cantidad_historial():
+    return {"total_registros": len(historial)}
