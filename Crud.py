@@ -42,5 +42,9 @@ class CRUDCSV:
         self._datos.append(fila)
         self._guardar()
 
+    def delete(self, indice: int):
+        self._datos.pop(indice)
+        self._guardar()
+
     def save(self):
         self._guardar()
