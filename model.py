@@ -29,19 +29,17 @@ class TipoUnidadEnum(str, Enum):
     avanzada = "Avanzada"
     suprema  = "Suprema"
 
+
 class Aragami(BaseModel):
     id: int
     nombre: str = Field(..., min_length=1, max_length=100)
     tipo: str
-    elemento: ElementoEnum
     debilidades: list[str] = Field(default_factory=list)
     descripcion: Optional[str] = None
-
 
 class AragamiCreate(BaseModel):
     nombre: str = Field(..., min_length=1, max_length=100)
     tipo: str
-    elemento: ElementoEnum
     debilidades: list[str] = Field(default_factory=list)
     descripcion: Optional[str] = None
 

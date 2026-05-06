@@ -23,18 +23,19 @@ def buscar_aragami(id: int):
             return x
     raise HTTPException(404, "Aragami no encontrado")
 
+
 @app.post("/aragami")
 def crear_aragami(data: AragamiCreate):
     nuevo = Aragami(
         id=len(aragami_db) + 1,
         nombre=data.nombre,
         tipo=data.tipo,
-        elemento=data.elemento,
         debilidades=data.debilidades,
         descripcion=data.descripcion,
     )
     aragami_db.append(nuevo)
     return nuevo
+
 
 @app.put("/aragami/{id}")
 def actualizar_aragami(id: int, data: AragamiCreate):
@@ -44,7 +45,6 @@ def actualizar_aragami(id: int, data: AragamiCreate):
                 id=id,
                 nombre=data.nombre,
                 tipo=data.tipo,
-                elemento=data.elemento,
                 debilidades=data.debilidades,
                 descripcion=data.descripcion,
             )
