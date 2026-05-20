@@ -1,10 +1,15 @@
 from fastapi import FastAPI, HTTPException
+from sqlalchemy.orm import Session
+from database import get_db, engine
 from Crud import CRUDCSV, Historial
 from model import (
     Aragami, AragamiCreate,
     GodArc, GodArcCreate,
-    GodEater, GodEaterCreate
+    GodEater, GodEaterCreate,
+    Material, MaterialCreate, Area, AreaCreate
 )
+
+models_db.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
@@ -200,6 +205,124 @@ def eliminar_godeater(id: int):
 def filtrar_rango(rango: str):
     return [x for x in godeater_db if x["rango"].lower() == rango.lower()]
 
+material_db = CRUDCSV("material.csv")
+area_db = CRUDCSV("area.csv")
+
+
+@app.get("/material")
+def listar_materiales():
+    return list(material_db)
+
+
+@app.get("/material/{id}")
+def buscar_material(id: int):
+    for x in material_db:
+        if int(x["id"]) == id:
+            return x
+    raise HTTPException(404, "Material no encontrado")
+
+
+@app.post("/material")
+def crear_material(data: MaterialCreate):
+    nuevo = Material(
+        id=len(material_db) + 1,
+        nombre=data.nombre,
+        origen=data.origen,
+        rango_mision=data.rango_mision,
+        obtenido_de=data.obtenido_de,
+        descripcion=data.descripcion,
+    )
+    material_db.append(nuevo)
+    return nuevo
+
+
+@app.put("/material/{id}")
+def actualizar_material(id: int, data: MaterialCreate):
+    for i, x in enumerate(material_db):
+        if int(x["id"]) == id:
+            actualizado = Material(
+                id=id,
+                nombre=data.nombre,
+                origen=data.origen,
+                rango_mision=data.rango_mision,
+                obtenido_de=data.obtenido_de,
+                descripcion=data.descripcion,
+            )
+            material_db[i] = actualizado
+            return actualizado
+    raise HTTPException(404, "Material no encontrado")
+
+
+@app.delete("/material/{id}")
+def eliminar_material(id: int):
+    for i, x in enumerate(material_db):
+        if int(x["id"]) == id:
+            nombre = x.get("nombre", "Desconocido")
+            historial.registrar("Material", id, nombre)
+            material_db.delete(i)
+            return {"mensaje": "Material eliminado", "id_eliminado": id, "nombre": nombre}
+    raise HTTPException(404, "Material no encontrado")
+
+
+@app.get("/material/origen/{origen}")
+def filtrar_por_origen(origen: str):
+    return [x for x in material_db if x["origen"].lower() == origen.lower()]
+
+
+@app.get("/material/rango/{rango}")
+def filtrar_por_rango(rango: int):
+    return [x for x in material_db if int(x["rango_mision"]) == rango]
+
+
+# ── Area ──────────────────────────────────────────────────────────────────────
+
+@app.get("/area")
+def listar_areas():
+    return list(area_db)
+
+
+@app.get("/area/{id}")
+def buscar_area(id: int):
+    for x in area_db:
+        if int(x["id"]) == id:
+            return x
+    raise HTTPException(404, "Área no encontrada")
+
+
+@app.post("/area")
+def crear_area(data: AreaCreate):
+    nuevo = Area(
+        id=len(area_db) + 1,
+        nombre=data.nombre,
+        descripcion=data.descripcion,
+    )
+    area_db.append(nuevo)
+    return nuevo
+
+
+@app.put("/area/{id}")
+def actualizar_area(id: int, data: AreaCreate):
+    for i, x in enumerate(area_db):
+        if int(x["id"]) == id:
+            actualizado = Area(
+                id=id,
+                nombre=data.nombre,
+                descripcion=data.descripcion,
+            )
+            area_db[i] = actualizado
+            return actualizado
+    raise HTTPException(404, "Área no encontrada")
+
+
+@app.delete("/area/{id}")
+def eliminar_area(id: int):
+    for i, x in enumerate(area_db):
+        if int(x["id"]) == id:
+            nombre = x.get("nombre", "Desconocido")
+            historial.registrar("Area", id, nombre)
+            area_db.delete(i)
+            return {"mensaje": "Área eliminada", "id_eliminado": id, "nombre": nombre}
+    raise HTTPException(404, "Área no encontrada")
 
 @app.get("/historial")
 def ver_historial():

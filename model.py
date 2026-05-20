@@ -101,3 +101,35 @@ class GodEaterCreate(BaseModel):
     rango: str
     god_arc_id: Optional[int] = None
     descripcion: Optional[str] = None
+
+
+class OrigenEnum(str, Enum):
+    aragami = "Aragami"
+    objetivo_perdido = "Objetivo Perdido"
+
+
+class Material(BaseModel):
+    id: int
+    nombre: str = Field(..., min_length=1, max_length=100)
+    origen: OrigenEnum
+    rango_mision: int = Field(..., ge=1, le=10, description="Rango de misión del 1 al 10")
+    obtenido_de: str = Field(..., description="Nombre del aragami o ciudad donde se obtiene")
+    descripcion: Optional[str] = None
+
+
+class MaterialCreate(BaseModel):
+    nombre: str = Field(..., min_length=1, max_length=100)
+    origen: OrigenEnum
+    rango_mision: int = Field(..., ge=1, le=10, description="Rango de misión del 1 al 10")
+    obtenido_de: str = Field(..., description="Nombre del aragami o ciudad donde se obtiene")
+    descripcion: Optional[str] = None
+
+class Area(BaseModel):
+    id: int
+    nombre: str = Field(..., min_length=1, max_length=100)
+    descripcion: Optional[str] = None
+
+
+class AreaCreate(BaseModel):
+    nombre: str = Field(..., min_length=1, max_length=100)
+    descripcion: Optional[str] = None
