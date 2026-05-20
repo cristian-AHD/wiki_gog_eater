@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from sqlalchemy.orm import Session
-from database import get_db, engine
+from Batabase import get_db, engine
 from Crud import CRUDCSV, Historial
 from model import (
     Aragami, AragamiCreate,
