@@ -12,16 +12,60 @@ class AragamiDB(Base):
     descripcion = Column(String, nullable=True)
 
 
-class GodArcDB(Base):
-    __tablename__ = "godarc"
+class EspadaDB(Base):
+    __tablename__ = "espada"
 
     id             = Column(Integer, primary_key=True, index=True)
     nombre         = Column(String(100), nullable=False)
-    espada         = Column(JSON, nullable=False)
-    escudo         = Column(JSON, nullable=False)
-    pistola        = Column(JSON, nullable=False)
-    unidad_control = Column(JSON, nullable=False)
+    tipo           = Column(String(50), nullable=False)
+    elemento       = Column(String(50), nullable=False)
+    sunder         = Column(Integer, default=0)
+    crush          = Column(Integer, default=0)
+    pierce         = Column(Integer, default=0)
+    valor_elemento = Column(Integer, default=0)
+    materiales     = Column(JSON, default=list)
     descripcion    = Column(String, nullable=True)
+
+
+class EscudoDB(Base):
+    __tablename__ = "escudo"
+
+    id             = Column(Integer, primary_key=True, index=True)
+    nombre         = Column(String(100), nullable=False)
+    tipo           = Column(String(50), nullable=False)
+    elemento       = Column(String(50), nullable=False)
+    sunder         = Column(Integer, default=0)
+    crush          = Column(Integer, default=0)
+    pierce         = Column(Integer, default=0)
+    valor_elemento = Column(Integer, default=0)
+    materiales     = Column(JSON, default=list)
+    descripcion    = Column(String, nullable=True)
+
+
+class PistolDB(Base):
+    __tablename__ = "pistola"
+
+    id             = Column(Integer, primary_key=True, index=True)
+    nombre         = Column(String(100), nullable=False)
+    tipo           = Column(String(50), nullable=False)
+    elemento       = Column(String(50), nullable=False)
+    sunder         = Column(Integer, default=0)
+    crush          = Column(Integer, default=0)
+    pierce         = Column(Integer, default=0)
+    valor_elemento = Column(Integer, default=0)
+    materiales     = Column(JSON, default=list)
+    descripcion    = Column(String, nullable=True)
+
+
+class UnidadControlDB(Base):
+    __tablename__ = "unidad_control"
+
+    id          = Column(Integer, primary_key=True, index=True)
+    nombre      = Column(String(100), nullable=False)
+    tipo        = Column(String(50), nullable=False)
+    buffs       = Column(String, nullable=False)
+    materiales  = Column(JSON, default=list)
+    descripcion = Column(String, nullable=True)
 
 
 class GodEaterDB(Base):
@@ -30,7 +74,10 @@ class GodEaterDB(Base):
     id          = Column(Integer, primary_key=True, index=True)
     nombre      = Column(String(100), nullable=False)
     rango       = Column(String(100), nullable=False)
-    god_arc_id  = Column(Integer, nullable=True)
+    espada_id   = Column(Integer, nullable=True)
+    escudo_id   = Column(Integer, nullable=True)
+    pistola_id  = Column(Integer, nullable=True)
+    unidad_id   = Column(Integer, nullable=True)
     descripcion = Column(String, nullable=True)
 
 

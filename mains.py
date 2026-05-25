@@ -1,347 +1,523 @@
 from fastapi import FastAPI, HTTPException
 from sqlalchemy.orm import Session
 from Batabase import get_db, engine
+import Models_db
 from Crud import CRUDCSV, Historial
 from model import (
     Aragami, AragamiCreate,
-    GodArc, GodArcCreate,
+    Espada, EspadaCreate,
+    Escudo, EscudoCreate,
+    Pistola, PistolaCreate,
+    UnidadControl, UnidadControlCreate,
     GodEater, GodEaterCreate,
-    Material, MaterialCreate, Area, AreaCreate
+    Material, MaterialCreate,
+    Area, AreaCreate
 )
 
-models_db.Base.metadata.create_all(bind=engine)
+Models_db.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-aragami_db = CRUDCSV("aragami.csv")
-godarc_db  = CRUDCSV("godarc.csv")
-godeater_db = CRUDCSV("godeater.csv")
-
-historial = Historial()
-
 @app.get("/aragami")
-def listar_aragami():
-    return list(aragami_db)
+def listar_aragami(db: Session = Depends(get_db)):
+    return db.query(models_db.AragamiDB).all()
+
+
+@app.get("/aragami/nombre/{nombre}")
+def buscar_aragami_nombre(nombre: str, db: Session = Depends(get_db)):
+    return db.query(models_db.AragamiDB).filter(
+        models_db.AragamiDB.nombre.ilike(f"%{nombre}%")
+    ).all()
+
 
 @app.get("/aragami/{id}")
-def buscar_aragami(id: int):
-    for x in aragami_db:
-        if int(x["id"]) == id:
-            return x
-    raise HTTPException(404, "Aragami no encontrado")
+def buscar_aragami(id: int, db: Session = Depends(get_db)):
+    aragami = db.query(models_db.AragamiDB).filter(models_db.AragamiDB.id == id).first()
+    if not aragami:
+        raise HTTPException(404, "Aragami no encontrado")
+    return aragami
 
 
 @app.post("/aragami")
-def crear_aragami(data: AragamiCreate):
-    nuevo = Aragami(
-        id=len(aragami_db) + 1,
+def crear_aragami(data: AragamiCreate, db: Session = Depends(get_db)):
+    nuevo = models_db.AragamiDB(
         nombre=data.nombre,
         tipo=data.tipo,
         debilidades=data.debilidades,
         descripcion=data.descripcion,
     )
-    aragami_db.append(nuevo)
+    db.add(nuevo)
+    db.commit()
+    db.refresh(nuevo)
     return nuevo
 
 
 @app.put("/aragami/{id}")
-def actualizar_aragami(id: int, data: AragamiCreate):
-    for i, x in enumerate(aragami_db):
-        if int(x["id"]) == id:
-            actualizado = Aragami(
-                id=id,
-                nombre=data.nombre,
-                tipo=data.tipo,
-                debilidades=data.debilidades,
-                descripcion=data.descripcion,
-            )
-            aragami_db[i] = actualizado
-            return actualizado
-    raise HTTPException(404, "Aragami no encontrado")
+def actualizar_aragami(id: int, data: AragamiCreate, db: Session = Depends(get_db)):
+    aragami = db.query(models_db.AragamiDB).filter(models_db.AragamiDB.id == id).first()
+    if not aragami:
+        raise HTTPException(404, "Aragami no encontrado")
+    aragami.nombre = data.nombre
+    aragami.tipo = data.tipo
+    aragami.debilidades = data.debilidades
+    aragami.descripcion = data.descripcion
+    db.commit()
+    db.refresh(aragami)
+    return aragami
 
 
 @app.delete("/aragami/{id}")
-def eliminar_aragami(id: int):
-    for i, x in enumerate(aragami_db):
-        if int(x["id"]) == id:
-            # Guardar en historial antes de eliminar
-            nombre = x.get("nombre", "Desconocido")
-            historial.registrar("Aragami", id, nombre)
-
-            aragami_db.delete(i)
-            return {"mensaje": "Aragami eliminado", "id_eliminado": id, "nombre": nombre}
-    raise HTTPException(404, "Aragami no encontrado")
-
-@app.get("/aragami/nombre/{nombre}")
-def buscar_por_nombre(nombre: str):
-    return [x for x in aragami_db if x["nombre"].lower() == nombre.lower()]
-
-@app.get("/aragami/elemento/{elemento}")
-def filtrar_por_elemento(elemento: str):
-    elemento = elemento.capitalize()
-    return [x for x in aragami_db if elemento in x.get("debilidades", [])]
+def eliminar_aragami(id: int, db: Session = Depends(get_db)):
+    aragami = db.query(models_db.AragamiDB).filter(models_db.AragamiDB.id == id).first()
+    if not aragami:
+        raise HTTPException(404, "Aragami no encontrado")
+    db.delete(aragami)
+    db.commit()
+    return {"mensaje": "Aragami eliminado", "id": id, "nombre": aragami.nombre}
 
 
-@app.get("/godarc")
-def listar_godarc():
-    return list(godarc_db)
+# ── Espada ────────────────────────────────────────────────────────────────────
 
-@app.get("/godarc/{id}")
-def buscar_godarc(id: int):
-    for x in godarc_db:
-        if int(x["id"]) == id:
-            return x
-    raise HTTPException(404, "GodArc no encontrado")
+@app.get("/espada")
+def listar_espadas(db: Session = Depends(get_db)):
+    return db.query(models_db.EspadaDB).all()
 
-@app.post("/godarc")
-def crear_godarc(data: GodArcCreate):
-    nuevo = GodArc(
-        id=len(godarc_db) + 1,
-        nombre=data.nombre,
-        espada=data.espada,
-        escudo=data.escudo,
-        pistola=data.pistola,
-        unidad_control=data.unidad_control,
-        descripcion=data.descripcion,
+
+@app.get("/espada/tipo/{tipo}")
+def filtrar_espada_tipo(tipo: str, db: Session = Depends(get_db)):
+    return db.query(models_db.EspadaDB).filter(
+        models_db.EspadaDB.tipo.ilike(tipo)
+    ).all()
+
+
+@app.get("/espada/{id}")
+def buscar_espada(id: int, db: Session = Depends(get_db)):
+    espada = db.query(models_db.EspadaDB).filter(models_db.EspadaDB.id == id).first()
+    if not espada:
+        raise HTTPException(404, "Espada no encontrada")
+    return espada
+
+
+@app.post("/espada")
+def crear_espada(data: EspadaCreate, db: Session = Depends(get_db)):
+    nuevo = models_db.EspadaDB(
+        nombre=data.nombre, tipo=data.tipo.value,
+        elemento=data.elemento.value, sunder=data.sunder,
+        crush=data.crush, pierce=data.pierce,
+        valor_elemento=data.valor_elemento,
+        materiales=data.materiales, descripcion=data.descripcion,
     )
-    godarc_db.append(nuevo)
+    db.add(nuevo);
+    db.commit();
+    db.refresh(nuevo)
     return nuevo
 
-@app.put("/godarc/{id}")
-def actualizar_godarc(id: int, data: GodArcCreate):
-    for i, x in enumerate(godarc_db):
-        if int(x["id"]) == id:
-            actualizado = GodArc(
-                id=id,
-                nombre=data.nombre,
-                espada=data.espada,
-                escudo=data.escudo,
-                pistola=data.pistola,
-                unidad_control=data.unidad_control,
-                descripcion=data.descripcion,
-            )
-            godarc_db[i] = actualizado
-            return actualizado
-    raise HTTPException(404, "GodArc no encontrado")
+
+@app.put("/espada/{id}")
+def actualizar_espada(id: int, data: EspadaCreate, db: Session = Depends(get_db)):
+    espada = db.query(models_db.EspadaDB).filter(models_db.EspadaDB.id == id).first()
+    if not espada:
+        raise HTTPException(404, "Espada no encontrada")
+    espada.nombre = data.nombre;
+    espada.tipo = data.tipo.value
+    espada.elemento = data.elemento.value;
+    espada.sunder = data.sunder
+    espada.crush = data.crush;
+    espada.pierce = data.pierce
+    espada.valor_elemento = data.valor_elemento
+    espada.materiales = data.materiales;
+    espada.descripcion = data.descripcion
+    db.commit();
+    db.refresh(espada)
+    return espada
 
 
-@app.delete("/godarc/{id}")
-def eliminar_godarc(id: int):
-    for i, x in enumerate(godarc_db):
-        if int(x["id"]) == id:
-            # Guardar en historial antes de eliminar
-            nombre = x.get("nombre", "Desconocido")
-            historial.registrar("GodArc", id, nombre)
+@app.delete("/espada/{id}")
+def eliminar_espada(id: int, db: Session = Depends(get_db)):
+    espada = db.query(models_db.EspadaDB).filter(models_db.EspadaDB.id == id).first()
+    if not espada:
+        raise HTTPException(404, "Espada no encontrada")
+    db.delete(espada);
+    db.commit()
+    return {"mensaje": "Espada eliminada", "id": id, "nombre": espada.nombre}
 
-            godarc_db.delete(i)
-            return {"mensaje": "GodArc eliminado", "id_eliminado": id, "nombre": nombre}
-    raise HTTPException(404, "GodArc no encontrado")
 
+# ── Escudo ────────────────────────────────────────────────────────────────────
+
+@app.get("/escudo")
+def listar_escudos(db: Session = Depends(get_db)):
+    return db.query(models_db.EscudoDB).all()
+
+
+@app.get("/escudo/tipo/{tipo}")
+def filtrar_escudo_tipo(tipo: str, db: Session = Depends(get_db)):
+    return db.query(models_db.EscudoDB).filter(
+        models_db.EscudoDB.tipo.ilike(tipo)
+    ).all()
+
+
+@app.get("/escudo/{id}")
+def buscar_escudo(id: int, db: Session = Depends(get_db)):
+    escudo = db.query(models_db.EscudoDB).filter(models_db.EscudoDB.id == id).first()
+    if not escudo:
+        raise HTTPException(404, "Escudo no encontrado")
+    return escudo
+
+
+@app.post("/escudo")
+def crear_escudo(data: EscudoCreate, db: Session = Depends(get_db)):
+    nuevo = models_db.EscudoDB(
+        nombre=data.nombre, tipo=data.tipo.value,
+        elemento=data.elemento.value, sunder=data.sunder,
+        crush=data.crush, pierce=data.pierce,
+        valor_elemento=data.valor_elemento,
+        materiales=data.materiales, descripcion=data.descripcion,
+    )
+    db.add(nuevo);
+    db.commit();
+    db.refresh(nuevo)
+    return nuevo
+
+
+@app.put("/escudo/{id}")
+def actualizar_escudo(id: int, data: EscudoCreate, db: Session = Depends(get_db)):
+    escudo = db.query(models_db.EscudoDB).filter(models_db.EscudoDB.id == id).first()
+    if not escudo:
+        raise HTTPException(404, "Escudo no encontrado")
+    escudo.nombre = data.nombre;
+    escudo.tipo = data.tipo.value
+    escudo.elemento = data.elemento.value;
+    escudo.sunder = data.sunder
+    escudo.crush = data.crush;
+    escudo.pierce = data.pierce
+    escudo.valor_elemento = data.valor_elemento
+    escudo.materiales = data.materiales;
+    escudo.descripcion = data.descripcion
+    db.commit();
+    db.refresh(escudo)
+    return escudo
+
+
+@app.delete("/escudo/{id}")
+def eliminar_escudo(id: int, db: Session = Depends(get_db)):
+    escudo = db.query(models_db.EscudoDB).filter(models_db.EscudoDB.id == id).first()
+    if not escudo:
+        raise HTTPException(404, "Escudo no encontrado")
+    db.delete(escudo);
+    db.commit()
+    return {"mensaje": "Escudo eliminado", "id": id, "nombre": escudo.nombre}
+
+
+# ── Pistola ───────────────────────────────────────────────────────────────────
+
+@app.get("/pistola")
+def listar_pistolas(db: Session = Depends(get_db)):
+    return db.query(models_db.PistolDB).all()
+
+
+@app.get("/pistola/tipo/{tipo}")
+def filtrar_pistola_tipo(tipo: str, db: Session = Depends(get_db)):
+    return db.query(models_db.PistolDB).filter(
+        models_db.PistolDB.tipo.ilike(tipo)
+    ).all()
+
+
+@app.get("/pistola/{id}")
+def buscar_pistola(id: int, db: Session = Depends(get_db)):
+    pistola = db.query(models_db.PistolDB).filter(models_db.PistolDB.id == id).first()
+    if not pistola:
+        raise HTTPException(404, "Pistola no encontrada")
+    return pistola
+
+
+@app.post("/pistola")
+def crear_pistola(data: PistolaCreate, db: Session = Depends(get_db)):
+    nuevo = models_db.PistolDB(
+        nombre=data.nombre, tipo=data.tipo.value,
+        elemento=data.elemento.value, sunder=data.sunder,
+        crush=data.crush, pierce=data.pierce,
+        valor_elemento=data.valor_elemento,
+        materiales=data.materiales, descripcion=data.descripcion,
+    )
+    db.add(nuevo);
+    db.commit();
+    db.refresh(nuevo)
+    return nuevo
+
+
+@app.put("/pistola/{id}")
+def actualizar_pistola(id: int, data: PistolaCreate, db: Session = Depends(get_db)):
+    pistola = db.query(models_db.PistolDB).filter(models_db.PistolDB.id == id).first()
+    if not pistola:
+        raise HTTPException(404, "Pistola no encontrada")
+    pistola.nombre = data.nombre;
+    pistola.tipo = data.tipo.value
+    pistola.elemento = data.elemento.value;
+    pistola.sunder = data.sunder
+    pistola.crush = data.crush;
+    pistola.pierce = data.pierce
+    pistola.valor_elemento = data.valor_elemento
+    pistola.materiales = data.materiales;
+    pistola.descripcion = data.descripcion
+    db.commit();
+    db.refresh(pistola)
+    return pistola
+
+
+@app.delete("/pistola/{id}")
+def eliminar_pistola(id: int, db: Session = Depends(get_db)):
+    pistola = db.query(models_db.PistolDB).filter(models_db.PistolDB.id == id).first()
+    if not pistola:
+        raise HTTPException(404, "Pistola no encontrada")
+    db.delete(pistola);
+    db.commit()
+    return {"mensaje": "Pistola eliminada", "id": id, "nombre": pistola.nombre}
+
+
+# ── Unidad de Control ─────────────────────────────────────────────────────────
+
+@app.get("/unidad")
+def listar_unidades(db: Session = Depends(get_db)):
+    return db.query(models_db.UnidadControlDB).all()
+
+
+@app.get("/unidad/{id}")
+def buscar_unidad(id: int, db: Session = Depends(get_db)):
+    unidad = db.query(models_db.UnidadControlDB).filter(models_db.UnidadControlDB.id == id).first()
+    if not unidad:
+        raise HTTPException(404, "Unidad de control no encontrada")
+    return unidad
+
+
+@app.post("/unidad")
+def crear_unidad(data: UnidadControlCreate, db: Session = Depends(get_db)):
+    nuevo = models_db.UnidadControlDB(
+        nombre=data.nombre, tipo=data.tipo.value,
+        buffs=data.buffs, materiales=data.materiales,
+        descripcion=data.descripcion,
+    )
+    db.add(nuevo);
+    db.commit();
+    db.refresh(nuevo)
+    return nuevo
+
+
+@app.put("/unidad/{id}")
+def actualizar_unidad(id: int, data: UnidadControlCreate, db: Session = Depends(get_db)):
+    unidad = db.query(models_db.UnidadControlDB).filter(models_db.UnidadControlDB.id == id).first()
+    if not unidad:
+        raise HTTPException(404, "Unidad de control no encontrada")
+    unidad.nombre = data.nombre;
+    unidad.tipo = data.tipo.value
+    unidad.buffs = data.buffs;
+    unidad.materiales = data.materiales
+    unidad.descripcion = data.descripcion
+    db.commit();
+    db.refresh(unidad)
+    return unidad
+
+
+@app.delete("/unidad/{id}")
+def eliminar_unidad(id: int, db: Session = Depends(get_db)):
+    unidad = db.query(models_db.UnidadControlDB).filter(models_db.UnidadControlDB.id == id).first()
+    if not unidad:
+        raise HTTPException(404, "Unidad de control no encontrada")
+    db.delete(unidad);
+    db.commit()
+    return {"mensaje": "Unidad eliminada", "id": id, "nombre": unidad.nombre}
+
+
+# ── GodEater ──────────────────────────────────────────────────────────────────
 
 @app.get("/godeater")
-def listar_godeater():
-    return list(godeater_db)
+def listar_godeater(db: Session = Depends(get_db)):
+    return db.query(models_db.GodEaterDB).all()
+
+
+@app.get("/godeater/rango/{rango}")
+def filtrar_rango(rango: str, db: Session = Depends(get_db)):
+    return db.query(models_db.GodEaterDB).filter(
+        models_db.GodEaterDB.rango.ilike(rango)
+    ).all()
 
 
 @app.get("/godeater/{id}")
-def buscar_godeater(id: int):
-    for x in godeater_db:
-        if int(x["id"]) == id:
-            return x
-    raise HTTPException(404, "GodEater no encontrado")
+def buscar_godeater(id: int, db: Session = Depends(get_db)):
+    godeater = db.query(models_db.GodEaterDB).filter(models_db.GodEaterDB.id == id).first()
+    if not godeater:
+        raise HTTPException(404, "GodEater no encontrado")
+    return godeater
 
 
 @app.post("/godeater")
-def crear_godeater(data: GodEaterCreate):
-    if data.god_arc_id is not None:
-        existe = any(int(g["id"]) == data.god_arc_id for g in godarc_db)
-        if not existe:
-            raise HTTPException(404, "GodArc relacionado no existe")
+def crear_godeater(data: GodEaterCreate, db: Session = Depends(get_db)):
+    # Validar que los IDs referenciados existan
+    if data.espada_id and not db.query(models_db.EspadaDB).filter(models_db.EspadaDB.id == data.espada_id).first():
+        raise HTTPException(404, "Espada no encontrada")
+    if data.escudo_id and not db.query(models_db.EscudoDB).filter(models_db.EscudoDB.id == data.escudo_id).first():
+        raise HTTPException(404, "Escudo no encontrado")
+    if data.pistola_id and not db.query(models_db.PistolDB).filter(models_db.PistolDB.id == data.pistola_id).first():
+        raise HTTPException(404, "Pistola no encontrada")
+    if data.unidad_id and not db.query(models_db.UnidadControlDB).filter(
+            models_db.UnidadControlDB.id == data.unidad_id).first():
+        raise HTTPException(404, "Unidad de control no encontrada")
 
-    nuevo = GodEater(
-        id=len(godeater_db) + 1,
-        nombre=data.nombre,
-        rango=data.rango,
-        god_arc_id=data.god_arc_id,
+    nuevo = models_db.GodEaterDB(
+        nombre=data.nombre, rango=data.rango,
+        espada_id=data.espada_id, escudo_id=data.escudo_id,
+        pistola_id=data.pistola_id, unidad_id=data.unidad_id,
         descripcion=data.descripcion,
     )
-    godeater_db.append(nuevo)
+    db.add(nuevo);
+    db.commit();
+    db.refresh(nuevo)
     return nuevo
 
 
 @app.put("/godeater/{id}")
-def actualizar_godeater(id: int, data: GodEaterCreate):
-    for i, x in enumerate(godeater_db):
-        if int(x["id"]) == id:
-            if data.god_arc_id is not None:
-                existe = any(int(g["id"]) == data.god_arc_id for g in godarc_db)
-                if not existe:
-                    raise HTTPException(404, "GodArc relacionado no existe")
-            actualizado = GodEater(
-                id=id,
-                nombre=data.nombre,
-                rango=data.rango,
-                god_arc_id=data.god_arc_id,
-                descripcion=data.descripcion,
-            )
-            godeater_db[i] = actualizado
-            return actualizado
-    raise HTTPException(404, "GodEater no encontrado")
+def actualizar_godeater(id: int, data: GodEaterCreate, db: Session = Depends(get_db)):
+    godeater = db.query(models_db.GodEaterDB).filter(models_db.GodEaterDB.id == id).first()
+    if not godeater:
+        raise HTTPException(404, "GodEater no encontrado")
+    if data.espada_id and not db.query(models_db.EspadaDB).filter(models_db.EspadaDB.id == data.espada_id).first():
+        raise HTTPException(404, "Espada no encontrada")
+    if data.escudo_id and not db.query(models_db.EscudoDB).filter(models_db.EscudoDB.id == data.escudo_id).first():
+        raise HTTPException(404, "Escudo no encontrado")
+    if data.pistola_id and not db.query(models_db.PistolDB).filter(models_db.PistolDB.id == data.pistola_id).first():
+        raise HTTPException(404, "Pistola no encontrada")
+    if data.unidad_id and not db.query(models_db.UnidadControlDB).filter(
+            models_db.UnidadControlDB.id == data.unidad_id).first():
+        raise HTTPException(404, "Unidad de control no encontrada")
+    godeater.nombre = data.nombre;
+    godeater.rango = data.rango
+    godeater.espada_id = data.espada_id;
+    godeater.escudo_id = data.escudo_id
+    godeater.pistola_id = data.pistola_id;
+    godeater.unidad_id = data.unidad_id
+    godeater.descripcion = data.descripcion
+    db.commit();
+    db.refresh(godeater)
+    return godeater
 
 
 @app.delete("/godeater/{id}")
-def eliminar_godeater(id: int):
-    for i, x in enumerate(godeater_db):
-        if int(x["id"]) == id:
-            nombre = x.get("nombre", "Desconocido")
-            historial.registrar("GodEater", id, nombre)
-
-            godeater_db.delete(i)
-            return {"mensaje": "GodEater eliminado", "id_eliminado": id, "nombre": nombre}
-    raise HTTPException(404, "GodEater no encontrado")
+def eliminar_godeater(id: int, db: Session = Depends(get_db)):
+    godeater = db.query(models_db.GodEaterDB).filter(models_db.GodEaterDB.id == id).first()
+    if not godeater:
+        raise HTTPException(404, "GodEater no encontrado")
+    db.delete(godeater);
+    db.commit()
+    return {"mensaje": "GodEater eliminado", "id": id, "nombre": godeater.nombre}
 
 
-@app.get("/godeater/rango/{rango}")
-def filtrar_rango(rango: str):
-    return [x for x in godeater_db if x["rango"].lower() == rango.lower()]
-
-material_db = CRUDCSV("material.csv")
-area_db = CRUDCSV("area.csv")
-
+# ── Material ──────────────────────────────────────────────────────────────────
 
 @app.get("/material")
-def listar_materiales():
-    return list(material_db)
+def listar_materiales(db: Session = Depends(get_db)):
+    return db.query(models_db.MaterialDB).all()
+
+
+@app.get("/material/origen/{origen}")
+def filtrar_origen(origen: str, db: Session = Depends(get_db)):
+    return db.query(models_db.MaterialDB).filter(
+        models_db.MaterialDB.origen.ilike(origen)
+    ).all()
+
+
+@app.get("/material/rango/{rango}")
+def filtrar_rango_material(rango: int, db: Session = Depends(get_db)):
+    return db.query(models_db.MaterialDB).filter(
+        models_db.MaterialDB.rango_mision == rango
+    ).all()
 
 
 @app.get("/material/{id}")
-def buscar_material(id: int):
-    for x in material_db:
-        if int(x["id"]) == id:
-            return x
-    raise HTTPException(404, "Material no encontrado")
+def buscar_material(id: int, db: Session = Depends(get_db)):
+    material = db.query(models_db.MaterialDB).filter(models_db.MaterialDB.id == id).first()
+    if not material:
+        raise HTTPException(404, "Material no encontrado")
+    return material
 
 
 @app.post("/material")
-def crear_material(data: MaterialCreate):
-    nuevo = Material(
-        id=len(material_db) + 1,
-        nombre=data.nombre,
-        origen=data.origen,
-        rango_mision=data.rango_mision,
-        obtenido_de=data.obtenido_de,
+def crear_material(data: MaterialCreate, db: Session = Depends(get_db)):
+    nuevo = models_db.MaterialDB(
+        nombre=data.nombre, origen=data.origen.value,
+        rango_mision=data.rango_mision, obtenido_de=data.obtenido_de,
         descripcion=data.descripcion,
     )
-    material_db.append(nuevo)
+    db.add(nuevo);
+    db.commit();
+    db.refresh(nuevo)
     return nuevo
 
 
 @app.put("/material/{id}")
-def actualizar_material(id: int, data: MaterialCreate):
-    for i, x in enumerate(material_db):
-        if int(x["id"]) == id:
-            actualizado = Material(
-                id=id,
-                nombre=data.nombre,
-                origen=data.origen,
-                rango_mision=data.rango_mision,
-                obtenido_de=data.obtenido_de,
-                descripcion=data.descripcion,
-            )
-            material_db[i] = actualizado
-            return actualizado
-    raise HTTPException(404, "Material no encontrado")
+def actualizar_material(id: int, data: MaterialCreate, db: Session = Depends(get_db)):
+    material = db.query(models_db.MaterialDB).filter(models_db.MaterialDB.id == id).first()
+    if not material:
+        raise HTTPException(404, "Material no encontrado")
+    material.nombre = data.nombre;
+    material.origen = data.origen.value
+    material.rango_mision = data.rango_mision;
+    material.obtenido_de = data.obtenido_de
+    material.descripcion = data.descripcion
+    db.commit();
+    db.refresh(material)
+    return material
 
 
 @app.delete("/material/{id}")
-def eliminar_material(id: int):
-    for i, x in enumerate(material_db):
-        if int(x["id"]) == id:
-            nombre = x.get("nombre", "Desconocido")
-            historial.registrar("Material", id, nombre)
-            material_db.delete(i)
-            return {"mensaje": "Material eliminado", "id_eliminado": id, "nombre": nombre}
-    raise HTTPException(404, "Material no encontrado")
-
-
-@app.get("/material/origen/{origen}")
-def filtrar_por_origen(origen: str):
-    return [x for x in material_db if x["origen"].lower() == origen.lower()]
-
-
-@app.get("/material/rango/{rango}")
-def filtrar_por_rango(rango: int):
-    return [x for x in material_db if int(x["rango_mision"]) == rango]
+def eliminar_material(id: int, db: Session = Depends(get_db)):
+    material = db.query(models_db.MaterialDB).filter(models_db.MaterialDB.id == id).first()
+    if not material:
+        raise HTTPException(404, "Material no encontrado")
+    db.delete(material);
+    db.commit()
+    return {"mensaje": "Material eliminado", "id": id, "nombre": material.nombre}
 
 
 # ── Area ──────────────────────────────────────────────────────────────────────
 
 @app.get("/area")
-def listar_areas():
-    return list(area_db)
+def listar_areas(db: Session = Depends(get_db)):
+    return db.query(models_db.AreaDB).all()
 
 
 @app.get("/area/{id}")
-def buscar_area(id: int):
-    for x in area_db:
-        if int(x["id"]) == id:
-            return x
-    raise HTTPException(404, "Área no encontrada")
+def buscar_area(id: int, db: Session = Depends(get_db)):
+    area = db.query(models_db.AreaDB).filter(models_db.AreaDB.id == id).first()
+    if not area:
+        raise HTTPException(404, "Área no encontrada")
+    return area
 
 
 @app.post("/area")
-def crear_area(data: AreaCreate):
-    nuevo = Area(
-        id=len(area_db) + 1,
-        nombre=data.nombre,
-        descripcion=data.descripcion,
-    )
-    area_db.append(nuevo)
+def crear_area(data: AreaCreate, db: Session = Depends(get_db)):
+    nuevo = models_db.AreaDB(nombre=data.nombre, descripcion=data.descripcion)
+    db.add(nuevo);
+    db.commit();
+    db.refresh(nuevo)
     return nuevo
 
 
 @app.put("/area/{id}")
-def actualizar_area(id: int, data: AreaCreate):
-    for i, x in enumerate(area_db):
-        if int(x["id"]) == id:
-            actualizado = Area(
-                id=id,
-                nombre=data.nombre,
-                descripcion=data.descripcion,
-            )
-            area_db[i] = actualizado
-            return actualizado
-    raise HTTPException(404, "Área no encontrada")
+def actualizar_area(id: int, data: AreaCreate, db: Session = Depends(get_db)):
+    area = db.query(models_db.AreaDB).filter(models_db.AreaDB.id == id).first()
+    if not area:
+        raise HTTPException(404, "Área no encontrada")
+    area.nombre = data.nombre;
+    area.descripcion = data.descripcion
+    db.commit();
+    db.refresh(area)
+    return area
 
 
 @app.delete("/area/{id}")
-def eliminar_area(id: int):
-    for i, x in enumerate(area_db):
-        if int(x["id"]) == id:
-            nombre = x.get("nombre", "Desconocido")
-            historial.registrar("Area", id, nombre)
-            area_db.delete(i)
-            return {"mensaje": "Área eliminada", "id_eliminado": id, "nombre": nombre}
-    raise HTTPException(404, "Área no encontrada")
-
-@app.get("/historial")
-def ver_historial():
-    return historial.obtener_todos()
-
-@app.get("/historial/{tipo}")
-def ver_historial_por_tipo(tipo: str):
-    tipos_validos = ["Aragami", "GodArc", "GodEater"]
-    if tipo not in tipos_validos:
-        raise HTTPException(400, f"Tipo inválido. Use: {tipos_validos}")
-
-    resultado = historial.obtener_por_tipo(tipo)
-    return resultado
-
-@app.delete("/historial/limpiar")
-def limpiar_historial():
-    historial.limpiar()
-    return {"mensaje": "Historial limpiado exitosamente"}
-
-@app.get("/historial/cantidad")
-def cantidad_historial():
-    return {"total_registros": len(historial)}
+def eliminar_area(id: int, db: Session = Depends(get_db)):
+    area = db.query(models_db.AreaDB).filter(models_db.AreaDB.id == id).first()
+    if not area:
+        raise HTTPException(404, "Área no encontrada")
+    db.delete(area);
+    db.commit()
+    return {"mensaje": "Área eliminada", "id": id, "nombre": area.nombre}
