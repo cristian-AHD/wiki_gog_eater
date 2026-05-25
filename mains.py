@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 from Batabase import get_db, engine
 import Models_db
@@ -20,19 +20,19 @@ app = FastAPI()
 
 @app.get("/aragami")
 def listar_aragami(db: Session = Depends(get_db)):
-    return db.query(models_db.AragamiDB).all()
+    return db.query(Models_db.AragamiDB).all()
 
 
 @app.get("/aragami/nombre/{nombre}")
 def buscar_aragami_nombre(nombre: str, db: Session = Depends(get_db)):
-    return db.query(models_db.AragamiDB).filter(
-        models_db.AragamiDB.nombre.ilike(f"%{nombre}%")
+    return db.query(Models_db.AragamiDB).filter(
+        Models_db.AragamiDB.nombre.ilike(f"%{nombre}%")
     ).all()
 
 
 @app.get("/aragami/{id}")
 def buscar_aragami(id: int, db: Session = Depends(get_db)):
-    aragami = db.query(models_db.AragamiDB).filter(models_db.AragamiDB.id == id).first()
+    aragami = db.query(Models_db.AragamiDB).filter(Models_db.AragamiDB.id == id).first()
     if not aragami:
         raise HTTPException(404, "Aragami no encontrado")
     return aragami
@@ -40,7 +40,7 @@ def buscar_aragami(id: int, db: Session = Depends(get_db)):
 
 @app.post("/aragami")
 def crear_aragami(data: AragamiCreate, db: Session = Depends(get_db)):
-    nuevo = models_db.AragamiDB(
+    nuevo = Models_db.AragamiDB(
         nombre=data.nombre,
         tipo=data.tipo,
         debilidades=data.debilidades,
@@ -54,7 +54,7 @@ def crear_aragami(data: AragamiCreate, db: Session = Depends(get_db)):
 
 @app.put("/aragami/{id}")
 def actualizar_aragami(id: int, data: AragamiCreate, db: Session = Depends(get_db)):
-    aragami = db.query(models_db.AragamiDB).filter(models_db.AragamiDB.id == id).first()
+    aragami = db.query(Models_db.AragamiDB).filter(Models_db.AragamiDB.id == id).first()
     if not aragami:
         raise HTTPException(404, "Aragami no encontrado")
     aragami.nombre = data.nombre
@@ -68,7 +68,7 @@ def actualizar_aragami(id: int, data: AragamiCreate, db: Session = Depends(get_d
 
 @app.delete("/aragami/{id}")
 def eliminar_aragami(id: int, db: Session = Depends(get_db)):
-    aragami = db.query(models_db.AragamiDB).filter(models_db.AragamiDB.id == id).first()
+    aragami = db.query(Models_db.AragamiDB).filter(Models_db.AragamiDB.id == id).first()
     if not aragami:
         raise HTTPException(404, "Aragami no encontrado")
     db.delete(aragami)
@@ -80,19 +80,19 @@ def eliminar_aragami(id: int, db: Session = Depends(get_db)):
 
 @app.get("/espada")
 def listar_espadas(db: Session = Depends(get_db)):
-    return db.query(models_db.EspadaDB).all()
+    return db.query(Models_db.EspadaDB).all()
 
 
 @app.get("/espada/tipo/{tipo}")
 def filtrar_espada_tipo(tipo: str, db: Session = Depends(get_db)):
-    return db.query(models_db.EspadaDB).filter(
-        models_db.EspadaDB.tipo.ilike(tipo)
+    return db.query(Models_db.EspadaDB).filter(
+        Models_db.EspadaDB.tipo.ilike(tipo)
     ).all()
 
 
 @app.get("/espada/{id}")
 def buscar_espada(id: int, db: Session = Depends(get_db)):
-    espada = db.query(models_db.EspadaDB).filter(models_db.EspadaDB.id == id).first()
+    espada = db.query(Models_db.EspadaDB).filter(Models_db.EspadaDB.id == id).first()
     if not espada:
         raise HTTPException(404, "Espada no encontrada")
     return espada
@@ -100,7 +100,7 @@ def buscar_espada(id: int, db: Session = Depends(get_db)):
 
 @app.post("/espada")
 def crear_espada(data: EspadaCreate, db: Session = Depends(get_db)):
-    nuevo = models_db.EspadaDB(
+    nuevo = Models_db.EspadaDB(
         nombre=data.nombre, tipo=data.tipo.value,
         elemento=data.elemento.value, sunder=data.sunder,
         crush=data.crush, pierce=data.pierce,
@@ -115,7 +115,7 @@ def crear_espada(data: EspadaCreate, db: Session = Depends(get_db)):
 
 @app.put("/espada/{id}")
 def actualizar_espada(id: int, data: EspadaCreate, db: Session = Depends(get_db)):
-    espada = db.query(models_db.EspadaDB).filter(models_db.EspadaDB.id == id).first()
+    espada = db.query(Models_db.EspadaDB).filter(Models_db.EspadaDB.id == id).first()
     if not espada:
         raise HTTPException(404, "Espada no encontrada")
     espada.nombre = data.nombre;
@@ -134,7 +134,7 @@ def actualizar_espada(id: int, data: EspadaCreate, db: Session = Depends(get_db)
 
 @app.delete("/espada/{id}")
 def eliminar_espada(id: int, db: Session = Depends(get_db)):
-    espada = db.query(models_db.EspadaDB).filter(models_db.EspadaDB.id == id).first()
+    espada = db.query(Models_db.EspadaDB).filter(Models_db.EspadaDB.id == id).first()
     if not espada:
         raise HTTPException(404, "Espada no encontrada")
     db.delete(espada);
@@ -142,23 +142,22 @@ def eliminar_espada(id: int, db: Session = Depends(get_db)):
     return {"mensaje": "Espada eliminada", "id": id, "nombre": espada.nombre}
 
 
-# ── Escudo ────────────────────────────────────────────────────────────────────
 
 @app.get("/escudo")
 def listar_escudos(db: Session = Depends(get_db)):
-    return db.query(models_db.EscudoDB).all()
+    return db.query(Models_db.EscudoDB).all()
 
 
 @app.get("/escudo/tipo/{tipo}")
 def filtrar_escudo_tipo(tipo: str, db: Session = Depends(get_db)):
-    return db.query(models_db.EscudoDB).filter(
-        models_db.EscudoDB.tipo.ilike(tipo)
+    return db.query(Models_db.EscudoDB).filter(
+        Models_db.EscudoDB.tipo.ilike(tipo)
     ).all()
 
 
 @app.get("/escudo/{id}")
 def buscar_escudo(id: int, db: Session = Depends(get_db)):
-    escudo = db.query(models_db.EscudoDB).filter(models_db.EscudoDB.id == id).first()
+    escudo = db.query(Models_db.EscudoDB).filter(Models_db.EscudoDB.id == id).first()
     if not escudo:
         raise HTTPException(404, "Escudo no encontrado")
     return escudo
@@ -166,7 +165,7 @@ def buscar_escudo(id: int, db: Session = Depends(get_db)):
 
 @app.post("/escudo")
 def crear_escudo(data: EscudoCreate, db: Session = Depends(get_db)):
-    nuevo = models_db.EscudoDB(
+    nuevo = Models_db.EscudoDB(
         nombre=data.nombre, tipo=data.tipo.value,
         elemento=data.elemento.value, sunder=data.sunder,
         crush=data.crush, pierce=data.pierce,
@@ -181,7 +180,7 @@ def crear_escudo(data: EscudoCreate, db: Session = Depends(get_db)):
 
 @app.put("/escudo/{id}")
 def actualizar_escudo(id: int, data: EscudoCreate, db: Session = Depends(get_db)):
-    escudo = db.query(models_db.EscudoDB).filter(models_db.EscudoDB.id == id).first()
+    escudo = db.query(Models_db.EscudoDB).filter(Models_db.EscudoDB.id == id).first()
     if not escudo:
         raise HTTPException(404, "Escudo no encontrado")
     escudo.nombre = data.nombre;
@@ -200,7 +199,7 @@ def actualizar_escudo(id: int, data: EscudoCreate, db: Session = Depends(get_db)
 
 @app.delete("/escudo/{id}")
 def eliminar_escudo(id: int, db: Session = Depends(get_db)):
-    escudo = db.query(models_db.EscudoDB).filter(models_db.EscudoDB.id == id).first()
+    escudo = db.query(Models_db.EscudoDB).filter(Models_db.EscudoDB.id == id).first()
     if not escudo:
         raise HTTPException(404, "Escudo no encontrado")
     db.delete(escudo);
@@ -212,19 +211,19 @@ def eliminar_escudo(id: int, db: Session = Depends(get_db)):
 
 @app.get("/pistola")
 def listar_pistolas(db: Session = Depends(get_db)):
-    return db.query(models_db.PistolDB).all()
+    return db.query(Models_db.PistolDB).all()
 
 
 @app.get("/pistola/tipo/{tipo}")
 def filtrar_pistola_tipo(tipo: str, db: Session = Depends(get_db)):
-    return db.query(models_db.PistolDB).filter(
-        models_db.PistolDB.tipo.ilike(tipo)
+    return db.query(Models_db.PistolDB).filter(
+        Models_db.PistolDB.tipo.ilike(tipo)
     ).all()
 
 
 @app.get("/pistola/{id}")
 def buscar_pistola(id: int, db: Session = Depends(get_db)):
-    pistola = db.query(models_db.PistolDB).filter(models_db.PistolDB.id == id).first()
+    pistola = db.query(Models_db.PistolDB).filter(Models_db.PistolDB.id == id).first()
     if not pistola:
         raise HTTPException(404, "Pistola no encontrada")
     return pistola
@@ -232,7 +231,7 @@ def buscar_pistola(id: int, db: Session = Depends(get_db)):
 
 @app.post("/pistola")
 def crear_pistola(data: PistolaCreate, db: Session = Depends(get_db)):
-    nuevo = models_db.PistolDB(
+    nuevo = Models_db.PistolDB(
         nombre=data.nombre, tipo=data.tipo.value,
         elemento=data.elemento.value, sunder=data.sunder,
         crush=data.crush, pierce=data.pierce,
@@ -247,7 +246,7 @@ def crear_pistola(data: PistolaCreate, db: Session = Depends(get_db)):
 
 @app.put("/pistola/{id}")
 def actualizar_pistola(id: int, data: PistolaCreate, db: Session = Depends(get_db)):
-    pistola = db.query(models_db.PistolDB).filter(models_db.PistolDB.id == id).first()
+    pistola = db.query(Models_db.PistolDB).filter(Models_db.PistolDB.id == id).first()
     if not pistola:
         raise HTTPException(404, "Pistola no encontrada")
     pistola.nombre = data.nombre;
@@ -266,7 +265,7 @@ def actualizar_pistola(id: int, data: PistolaCreate, db: Session = Depends(get_d
 
 @app.delete("/pistola/{id}")
 def eliminar_pistola(id: int, db: Session = Depends(get_db)):
-    pistola = db.query(models_db.PistolDB).filter(models_db.PistolDB.id == id).first()
+    pistola = db.query(Models_db.PistolDB).filter(Models_db.PistolDB.id == id).first()
     if not pistola:
         raise HTTPException(404, "Pistola no encontrada")
     db.delete(pistola);
@@ -278,12 +277,12 @@ def eliminar_pistola(id: int, db: Session = Depends(get_db)):
 
 @app.get("/unidad")
 def listar_unidades(db: Session = Depends(get_db)):
-    return db.query(models_db.UnidadControlDB).all()
+    return db.query(Models_db.UnidadControlDB).all()
 
 
 @app.get("/unidad/{id}")
 def buscar_unidad(id: int, db: Session = Depends(get_db)):
-    unidad = db.query(models_db.UnidadControlDB).filter(models_db.UnidadControlDB.id == id).first()
+    unidad = db.query(Models_db.UnidadControlDB).filter(Models_db.UnidadControlDB.id == id).first()
     if not unidad:
         raise HTTPException(404, "Unidad de control no encontrada")
     return unidad
@@ -291,20 +290,20 @@ def buscar_unidad(id: int, db: Session = Depends(get_db)):
 
 @app.post("/unidad")
 def crear_unidad(data: UnidadControlCreate, db: Session = Depends(get_db)):
-    nuevo = models_db.UnidadControlDB(
+    nuevo = Models_db.UnidadControlDB(
         nombre=data.nombre, tipo=data.tipo.value,
         buffs=data.buffs, materiales=data.materiales,
         descripcion=data.descripcion,
     )
-    db.add(nuevo);
-    db.commit();
+    db.add(nuevo),
+    db.commit(),
     db.refresh(nuevo)
     return nuevo
 
 
 @app.put("/unidad/{id}")
 def actualizar_unidad(id: int, data: UnidadControlCreate, db: Session = Depends(get_db)):
-    unidad = db.query(models_db.UnidadControlDB).filter(models_db.UnidadControlDB.id == id).first()
+    unidad = db.query(Models_db.UnidadControlDB).filter(Models_db.UnidadControlDB.id == id).first()
     if not unidad:
         raise HTTPException(404, "Unidad de control no encontrada")
     unidad.nombre = data.nombre;
@@ -319,7 +318,7 @@ def actualizar_unidad(id: int, data: UnidadControlCreate, db: Session = Depends(
 
 @app.delete("/unidad/{id}")
 def eliminar_unidad(id: int, db: Session = Depends(get_db)):
-    unidad = db.query(models_db.UnidadControlDB).filter(models_db.UnidadControlDB.id == id).first()
+    unidad = db.query(Models_db.UnidadControlDB).filter(Models_db.UnidadControlDB.id == id).first()
     if not unidad:
         raise HTTPException(404, "Unidad de control no encontrada")
     db.delete(unidad);
@@ -331,19 +330,19 @@ def eliminar_unidad(id: int, db: Session = Depends(get_db)):
 
 @app.get("/godeater")
 def listar_godeater(db: Session = Depends(get_db)):
-    return db.query(models_db.GodEaterDB).all()
+    return db.query(Models_db.GodEaterDB).all()
 
 
-@app.get("/godeater/rango/{rango}")
+@app.get("/godeater/rango/")
 def filtrar_rango(rango: str, db: Session = Depends(get_db)):
-    return db.query(models_db.GodEaterDB).filter(
-        models_db.GodEaterDB.rango.ilike(rango)
+    return db.query(Models_db.GodEaterDB).filter(
+        Models_db.GodEaterDB.rango.ilike(rango)
     ).all()
 
 
-@app.get("/godeater/{id}")
+@app.get("/godeater/id")
 def buscar_godeater(id: int, db: Session = Depends(get_db)):
-    godeater = db.query(models_db.GodEaterDB).filter(models_db.GodEaterDB.id == id).first()
+    godeater = db.query(Models_db.GodEaterDB).filter(models_db.GodEaterDB.id == id).first()
     if not godeater:
         raise HTTPException(404, "GodEater no encontrado")
     return godeater
@@ -352,17 +351,17 @@ def buscar_godeater(id: int, db: Session = Depends(get_db)):
 @app.post("/godeater")
 def crear_godeater(data: GodEaterCreate, db: Session = Depends(get_db)):
     # Validar que los IDs referenciados existan
-    if data.espada_id and not db.query(models_db.EspadaDB).filter(models_db.EspadaDB.id == data.espada_id).first():
+    if data.espada_id and not db.query(Models_db.EspadaDB).filter(Models_db.EspadaDB.id == data.espada_id).first():
         raise HTTPException(404, "Espada no encontrada")
-    if data.escudo_id and not db.query(models_db.EscudoDB).filter(models_db.EscudoDB.id == data.escudo_id).first():
+    if data.escudo_id and not db.query(Models_db.EscudoDB).filter(Models_db.EscudoDB.id == data.escudo_id).first():
         raise HTTPException(404, "Escudo no encontrado")
-    if data.pistola_id and not db.query(models_db.PistolDB).filter(models_db.PistolDB.id == data.pistola_id).first():
+    if data.pistola_id and not db.query(Models_db.PistolDB).filter(Models_db.PistolDB.id == data.pistola_id).first():
         raise HTTPException(404, "Pistola no encontrada")
-    if data.unidad_id and not db.query(models_db.UnidadControlDB).filter(
-            models_db.UnidadControlDB.id == data.unidad_id).first():
+    if data.unidad_id and not db.query(Models_db.UnidadControlDB).filter(
+            Models_db.UnidadControlDB.id == data.unidad_id).first():
         raise HTTPException(404, "Unidad de control no encontrada")
 
-    nuevo = models_db.GodEaterDB(
+    nuevo = Models_db.GodEaterDB(
         nombre=data.nombre, rango=data.rango,
         espada_id=data.espada_id, escudo_id=data.escudo_id,
         pistola_id=data.pistola_id, unidad_id=data.unidad_id,
@@ -376,14 +375,14 @@ def crear_godeater(data: GodEaterCreate, db: Session = Depends(get_db)):
 
 @app.put("/godeater/{id}")
 def actualizar_godeater(id: int, data: GodEaterCreate, db: Session = Depends(get_db)):
-    godeater = db.query(models_db.GodEaterDB).filter(models_db.GodEaterDB.id == id).first()
+    godeater = db.query(Models_db.GodEaterDB).filter(Models_db.GodEaterDB.id == id).first()
     if not godeater:
         raise HTTPException(404, "GodEater no encontrado")
-    if data.espada_id and not db.query(models_db.EspadaDB).filter(models_db.EspadaDB.id == data.espada_id).first():
+    if data.espada_id and not db.query(Models_db.EspadaDB).filter(Models_db.EspadaDB.id == data.espada_id).first():
         raise HTTPException(404, "Espada no encontrada")
-    if data.escudo_id and not db.query(models_db.EscudoDB).filter(models_db.EscudoDB.id == data.escudo_id).first():
+    if data.escudo_id and not db.query(Models_db.EscudoDB).filter(Models_db.EscudoDB.id == data.escudo_id).first():
         raise HTTPException(404, "Escudo no encontrado")
-    if data.pistola_id and not db.query(models_db.PistolDB).filter(models_db.PistolDB.id == data.pistola_id).first():
+    if data.pistola_id and not db.query(Models_db.PistolDB).filter(Models_db.PistolDB.id == data.pistola_id).first():
         raise HTTPException(404, "Pistola no encontrada")
     if data.unidad_id and not db.query(models_db.UnidadControlDB).filter(
             models_db.UnidadControlDB.id == data.unidad_id).first():
@@ -515,7 +514,7 @@ def actualizar_area(id: int, data: AreaCreate, db: Session = Depends(get_db)):
 
 @app.delete("/area/{id}")
 def eliminar_area(id: int, db: Session = Depends(get_db)):
-    area = db.query(models_db.AreaDB).filter(models_db.AreaDB.id == id).first()
+    area = db.query(Models_db.AreaDB).filter(Models_db.AreaDB.id == id).first()
     if not area:
         raise HTTPException(404, "Área no encontrada")
     db.delete(area);

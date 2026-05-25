@@ -39,8 +39,6 @@ class OrigenEnum(str, Enum):
     objetivo_perdido = "Objetivo Perdido"
 
 
-# ── Aragami ──────────────────────────────────────────────────────────────────
-
 class Aragami(BaseModel):
     id: int
     nombre: str = Field(..., min_length=1, max_length=100)
