@@ -53,9 +53,6 @@ class AragamiCreate(BaseModel):
     debilidades: list[str] = Field(default_factory=list)
     descripcion: Optional[str] = None
 
-
-# ── Espada ───────────────────────────────────────────────────────────────────
-
 class Espada(BaseModel):
     id: int
     nombre: str = Field(..., min_length=1, max_length=100)
@@ -66,7 +63,6 @@ class Espada(BaseModel):
     pierce: int = Field(0, ge=0)
     valor_elemento: int = Field(0, ge=0)
     materiales: list[str] = Field(default_factory=list, description="Ej: ['3x Garra de Ogretail']")
-    descripcion: Optional[str] = None
 
 
 class EspadaCreate(BaseModel):
@@ -78,10 +74,7 @@ class EspadaCreate(BaseModel):
     pierce: int = Field(0, ge=0)
     valor_elemento: int = Field(0, ge=0)
     materiales: list[str] = Field(default_factory=list)
-    descripcion: Optional[str] = None
 
-
-# ── Escudo ───────────────────────────────────────────────────────────────────
 
 class Escudo(BaseModel):
     id: int
@@ -93,7 +86,6 @@ class Escudo(BaseModel):
     pierce: int = Field(0, ge=0)
     valor_elemento: int = Field(0, ge=0)
     materiales: list[str] = Field(default_factory=list)
-    descripcion: Optional[str] = None
 
 
 class EscudoCreate(BaseModel):
@@ -105,10 +97,7 @@ class EscudoCreate(BaseModel):
     pierce: int = Field(0, ge=0)
     valor_elemento: int = Field(0, ge=0)
     materiales: list[str] = Field(default_factory=list)
-    descripcion: Optional[str] = None
 
-
-# ── Pistola ──────────────────────────────────────────────────────────────────
 
 class Pistola(BaseModel):
     id: int
@@ -120,7 +109,6 @@ class Pistola(BaseModel):
     pierce: int = Field(0, ge=0)
     valor_elemento: int = Field(0, ge=0)
     materiales: list[str] = Field(default_factory=list)
-    descripcion: Optional[str] = None
 
 
 class PistolaCreate(BaseModel):
@@ -132,10 +120,7 @@ class PistolaCreate(BaseModel):
     pierce: int = Field(0, ge=0)
     valor_elemento: int = Field(0, ge=0)
     materiales: list[str] = Field(default_factory=list)
-    descripcion: Optional[str] = None
 
-
-# ── Unidad de Control ─────────────────────────────────────────────────────────
 
 class UnidadControl(BaseModel):
     id: int
@@ -143,7 +128,6 @@ class UnidadControl(BaseModel):
     tipo: TipoUnidadEnum
     buffs: str = Field(..., description="Descripción de los buffs del traje")
     materiales: list[str] = Field(default_factory=list)
-    descripcion: Optional[str] = None
 
 
 class UnidadControlCreate(BaseModel):
@@ -151,10 +135,7 @@ class UnidadControlCreate(BaseModel):
     tipo: TipoUnidadEnum
     buffs: str = Field(..., description="Descripción de los buffs del traje")
     materiales: list[str] = Field(default_factory=list)
-    descripcion: Optional[str] = None
 
-
-# ── GodEater ─────────────────────────────────────────────────────────────────
 
 class GodEater(BaseModel):
     id: int
@@ -177,8 +158,6 @@ class GodEaterCreate(BaseModel):
     descripcion: Optional[str] = None
 
 
-# ── Material ──────────────────────────────────────────────────────────────────
-
 class Material(BaseModel):
     id: int
     nombre: str = Field(..., min_length=1, max_length=100)
@@ -194,9 +173,6 @@ class MaterialCreate(BaseModel):
     rango_mision: int = Field(..., ge=1, le=10)
     obtenido_de: str
     descripcion: Optional[str] = None
-
-
-# ── Area ──────────────────────────────────────────────────────────────────────
 
 class Area(BaseModel):
     id: int

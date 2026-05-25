@@ -18,6 +18,7 @@ Models_db.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+
 @app.get("/aragami")
 def listar_aragami(db: Session = Depends(get_db)):
     return db.query(Models_db.AragamiDB).all()
@@ -105,7 +106,6 @@ def crear_espada(data: EspadaCreate, db: Session = Depends(get_db)):
         elemento=data.elemento.value, sunder=data.sunder,
         crush=data.crush, pierce=data.pierce,
         valor_elemento=data.valor_elemento,
-        materiales=data.materiales, descripcion=data.descripcion,
     )
     db.add(nuevo);
     db.commit();
@@ -126,7 +126,6 @@ def actualizar_espada(id: int, data: EspadaCreate, db: Session = Depends(get_db)
     espada.pierce = data.pierce
     espada.valor_elemento = data.valor_elemento
     espada.materiales = data.materiales;
-    espada.descripcion = data.descripcion
     db.commit();
     db.refresh(espada)
     return espada
@@ -142,6 +141,7 @@ def eliminar_espada(id: int, db: Session = Depends(get_db)):
     return {"mensaje": "Espada eliminada", "id": id, "nombre": espada.nombre}
 
 
+# ── Escudo ────────────────────────────────────────────────────────────────────
 
 @app.get("/escudo")
 def listar_escudos(db: Session = Depends(get_db)):
@@ -170,7 +170,6 @@ def crear_escudo(data: EscudoCreate, db: Session = Depends(get_db)):
         elemento=data.elemento.value, sunder=data.sunder,
         crush=data.crush, pierce=data.pierce,
         valor_elemento=data.valor_elemento,
-        materiales=data.materiales, descripcion=data.descripcion,
     )
     db.add(nuevo);
     db.commit();
@@ -191,7 +190,6 @@ def actualizar_escudo(id: int, data: EscudoCreate, db: Session = Depends(get_db)
     escudo.pierce = data.pierce
     escudo.valor_elemento = data.valor_elemento
     escudo.materiales = data.materiales;
-    escudo.descripcion = data.descripcion
     db.commit();
     db.refresh(escudo)
     return escudo
@@ -236,7 +234,6 @@ def crear_pistola(data: PistolaCreate, db: Session = Depends(get_db)):
         elemento=data.elemento.value, sunder=data.sunder,
         crush=data.crush, pierce=data.pierce,
         valor_elemento=data.valor_elemento,
-        materiales=data.materiales, descripcion=data.descripcion,
     )
     db.add(nuevo);
     db.commit();
@@ -257,7 +254,6 @@ def actualizar_pistola(id: int, data: PistolaCreate, db: Session = Depends(get_d
     pistola.pierce = data.pierce
     pistola.valor_elemento = data.valor_elemento
     pistola.materiales = data.materiales;
-    pistola.descripcion = data.descripcion
     db.commit();
     db.refresh(pistola)
     return pistola
@@ -293,10 +289,9 @@ def crear_unidad(data: UnidadControlCreate, db: Session = Depends(get_db)):
     nuevo = Models_db.UnidadControlDB(
         nombre=data.nombre, tipo=data.tipo.value,
         buffs=data.buffs, materiales=data.materiales,
-        descripcion=data.descripcion,
     )
-    db.add(nuevo),
-    db.commit(),
+    db.add(nuevo);
+    db.commit();
     db.refresh(nuevo)
     return nuevo
 
@@ -310,7 +305,6 @@ def actualizar_unidad(id: int, data: UnidadControlCreate, db: Session = Depends(
     unidad.tipo = data.tipo.value
     unidad.buffs = data.buffs;
     unidad.materiales = data.materiales
-    unidad.descripcion = data.descripcion
     db.commit();
     db.refresh(unidad)
     return unidad
@@ -333,16 +327,16 @@ def listar_godeater(db: Session = Depends(get_db)):
     return db.query(Models_db.GodEaterDB).all()
 
 
-@app.get("/godeater/rango/")
+@app.get("/godeater/rango/{rango}")
 def filtrar_rango(rango: str, db: Session = Depends(get_db)):
     return db.query(Models_db.GodEaterDB).filter(
         Models_db.GodEaterDB.rango.ilike(rango)
     ).all()
 
 
-@app.get("/godeater/id")
+@app.get("/godeater/{id}")
 def buscar_godeater(id: int, db: Session = Depends(get_db)):
-    godeater = db.query(Models_db.GodEaterDB).filter(models_db.GodEaterDB.id == id).first()
+    godeater = db.query(Models_db.GodEaterDB).filter(Models_db.GodEaterDB.id == id).first()
     if not godeater:
         raise HTTPException(404, "GodEater no encontrado")
     return godeater
@@ -384,8 +378,8 @@ def actualizar_godeater(id: int, data: GodEaterCreate, db: Session = Depends(get
         raise HTTPException(404, "Escudo no encontrado")
     if data.pistola_id and not db.query(Models_db.PistolDB).filter(Models_db.PistolDB.id == data.pistola_id).first():
         raise HTTPException(404, "Pistola no encontrada")
-    if data.unidad_id and not db.query(models_db.UnidadControlDB).filter(
-            models_db.UnidadControlDB.id == data.unidad_id).first():
+    if data.unidad_id and not db.query(Models_db.UnidadControlDB).filter(
+            Models_db.UnidadControlDB.id == data.unidad_id).first():
         raise HTTPException(404, "Unidad de control no encontrada")
     godeater.nombre = data.nombre;
     godeater.rango = data.rango
@@ -401,7 +395,7 @@ def actualizar_godeater(id: int, data: GodEaterCreate, db: Session = Depends(get
 
 @app.delete("/godeater/{id}")
 def eliminar_godeater(id: int, db: Session = Depends(get_db)):
-    godeater = db.query(models_db.GodEaterDB).filter(models_db.GodEaterDB.id == id).first()
+    godeater = db.query(Models_db.GodEaterDB).filter(Models_db.GodEaterDB.id == id).first()
     if not godeater:
         raise HTTPException(404, "GodEater no encontrado")
     db.delete(godeater);
@@ -413,26 +407,26 @@ def eliminar_godeater(id: int, db: Session = Depends(get_db)):
 
 @app.get("/material")
 def listar_materiales(db: Session = Depends(get_db)):
-    return db.query(models_db.MaterialDB).all()
+    return db.query(Models_db.MaterialDB).all()
 
 
 @app.get("/material/origen/{origen}")
 def filtrar_origen(origen: str, db: Session = Depends(get_db)):
-    return db.query(models_db.MaterialDB).filter(
-        models_db.MaterialDB.origen.ilike(origen)
+    return db.query(Models_db.MaterialDB).filter(
+        Models_db.MaterialDB.origen.ilike(origen)
     ).all()
 
 
 @app.get("/material/rango/{rango}")
 def filtrar_rango_material(rango: int, db: Session = Depends(get_db)):
-    return db.query(models_db.MaterialDB).filter(
-        models_db.MaterialDB.rango_mision == rango
+    return db.query(Models_db.MaterialDB).filter(
+        Models_db.MaterialDB.rango_mision == rango
     ).all()
 
 
 @app.get("/material/{id}")
 def buscar_material(id: int, db: Session = Depends(get_db)):
-    material = db.query(models_db.MaterialDB).filter(models_db.MaterialDB.id == id).first()
+    material = db.query(Models_db.MaterialDB).filter(Models_db.MaterialDB.id == id).first()
     if not material:
         raise HTTPException(404, "Material no encontrado")
     return material
@@ -440,7 +434,7 @@ def buscar_material(id: int, db: Session = Depends(get_db)):
 
 @app.post("/material")
 def crear_material(data: MaterialCreate, db: Session = Depends(get_db)):
-    nuevo = models_db.MaterialDB(
+    nuevo = Models_db.MaterialDB(
         nombre=data.nombre, origen=data.origen.value,
         rango_mision=data.rango_mision, obtenido_de=data.obtenido_de,
         descripcion=data.descripcion,
@@ -453,7 +447,7 @@ def crear_material(data: MaterialCreate, db: Session = Depends(get_db)):
 
 @app.put("/material/{id}")
 def actualizar_material(id: int, data: MaterialCreate, db: Session = Depends(get_db)):
-    material = db.query(models_db.MaterialDB).filter(models_db.MaterialDB.id == id).first()
+    material = db.query(Models_db.MaterialDB).filter(Models_db.MaterialDB.id == id).first()
     if not material:
         raise HTTPException(404, "Material no encontrado")
     material.nombre = data.nombre;
@@ -468,7 +462,7 @@ def actualizar_material(id: int, data: MaterialCreate, db: Session = Depends(get
 
 @app.delete("/material/{id}")
 def eliminar_material(id: int, db: Session = Depends(get_db)):
-    material = db.query(models_db.MaterialDB).filter(models_db.MaterialDB.id == id).first()
+    material = db.query(Models_db.MaterialDB).filter(Models_db.MaterialDB.id == id).first()
     if not material:
         raise HTTPException(404, "Material no encontrado")
     db.delete(material);
@@ -480,12 +474,12 @@ def eliminar_material(id: int, db: Session = Depends(get_db)):
 
 @app.get("/area")
 def listar_areas(db: Session = Depends(get_db)):
-    return db.query(models_db.AreaDB).all()
+    return db.query(Models_db.AreaDB).all()
 
 
 @app.get("/area/{id}")
 def buscar_area(id: int, db: Session = Depends(get_db)):
-    area = db.query(models_db.AreaDB).filter(models_db.AreaDB.id == id).first()
+    area = db.query(Models_db.AreaDB).filter(Models_db.AreaDB.id == id).first()
     if not area:
         raise HTTPException(404, "Área no encontrada")
     return area
@@ -493,7 +487,7 @@ def buscar_area(id: int, db: Session = Depends(get_db)):
 
 @app.post("/area")
 def crear_area(data: AreaCreate, db: Session = Depends(get_db)):
-    nuevo = models_db.AreaDB(nombre=data.nombre, descripcion=data.descripcion)
+    nuevo = Models_db.AreaDB(nombre=data.nombre, descripcion=data.descripcion)
     db.add(nuevo);
     db.commit();
     db.refresh(nuevo)
@@ -502,7 +496,7 @@ def crear_area(data: AreaCreate, db: Session = Depends(get_db)):
 
 @app.put("/area/{id}")
 def actualizar_area(id: int, data: AreaCreate, db: Session = Depends(get_db)):
-    area = db.query(models_db.AreaDB).filter(models_db.AreaDB.id == id).first()
+    area = db.query(Models_db.AreaDB).filter(Models_db.AreaDB.id == id).first()
     if not area:
         raise HTTPException(404, "Área no encontrada")
     area.nombre = data.nombre;
