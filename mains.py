@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends
+from pydantic import BaseModel as PydanticBase
 from sqlalchemy.orm import Session
 from Batabase import get_db, engine
 import Models_db
@@ -514,3 +515,48 @@ def eliminar_area(id: int, db: Session = Depends(get_db)):
     db.delete(area);
     db.commit()
     return {"mensaje": "Área eliminada", "id": id, "nombre": area.nombre}
+
+
+class ImagenURL(PydanticBase):
+    url: str
+
+
+TABLAS_IMAGEN = {
+    "aragami": Models_db.AragamiDB,
+    "espada": Models_db.EspadaDB,
+    "escudo": Models_db.EscudoDB,
+    "pistola": Models_db.PistolDB,
+    "unidad": Models_db.UnidadControlDB,
+    "godeater": Models_db.GodEaterDB,
+    "material": Models_db.MaterialDB,
+    "area": Models_db.AreaDB,
+}
+
+
+@app.put("/imagen/{tipo}/{id}")
+def actualizar_imagen(tipo: str, id: int, data: ImagenURL, db: Session = Depends(get_db)):
+    if tipo not in TABLAS_IMAGEN:
+        raise HTTPException(400, f"Tipo inválido. Usa: {list(TABLAS_IMAGEN.keys())}")
+    tabla = TABLAS_IMAGEN[tipo]
+    registro = db.query(tabla).filter(tabla.id == id).first()
+    if not registro:
+        raise HTTPException(404, f"{tipo} con id {id} no encontrado")
+    registro.imagen = data.url
+    db.commit()
+    db.refresh(registro)
+    return {"mensaje": "Imagen actualizada", "url": registro.imagen}
+
+
+@app.delete("/imagen/{tipo}/{id}")
+def eliminar_imagen(tipo: str, id: int, db: Session = Depends(get_db)):
+    if tipo not in TABLAS_IMAGEN:
+        raise HTTPException(400, f"Tipo inválido. Usa: {list(TABLAS_IMAGEN.keys())}")
+    tabla = TABLAS_IMAGEN[tipo]
+    registro = db.query(tabla).filter(tabla.id == id).first()
+    if not registro:
+        raise HTTPException(404, f"{tipo} con id {id} no encontrado")
+    if not registro.imagen:
+        raise HTTPException(404, "Este registro no tiene imagen")
+    registro.imagen = None
+    db.commit()
+    return {"mensaje": "Imagen eliminada"}

@@ -10,6 +10,7 @@ class AragamiDB(Base):
     tipo = Column(String(100), nullable=False)
     debilidades = Column(JSON, default=list)
     descripcion = Column(String, nullable=True)
+    imagen = Column(String, nullable=True)
 
 
 class EspadaDB(Base):
@@ -24,6 +25,7 @@ class EspadaDB(Base):
     pierce = Column(Integer, default=0)
     valor_elemento = Column(Integer, default=0)
     materiales = Column(JSON, default=list)
+    imagen = Column(String, nullable=True)
 
 
 class EscudoDB(Base):
@@ -38,6 +40,7 @@ class EscudoDB(Base):
     pierce = Column(Integer, default=0)
     valor_elemento = Column(Integer, default=0)
     materiales = Column(JSON, default=list)
+    imagen = Column(String, nullable=True)
 
 
 class PistolDB(Base):
@@ -52,6 +55,7 @@ class PistolDB(Base):
     pierce = Column(Integer, default=0)
     valor_elemento = Column(Integer, default=0)
     materiales = Column(JSON, default=list)
+    imagen = Column(String, nullable=True)
 
 
 class UnidadControlDB(Base):
@@ -62,6 +66,7 @@ class UnidadControlDB(Base):
     tipo = Column(String(50), nullable=False)
     buffs = Column(String, nullable=False)
     materiales = Column(JSON, default=list)
+    imagen = Column(String, nullable=True)
 
 
 class GodEaterDB(Base):
@@ -75,6 +80,7 @@ class GodEaterDB(Base):
     pistola_id = Column(Integer, nullable=True)
     unidad_id = Column(Integer, nullable=True)
     descripcion = Column(String, nullable=True)
+    imagen = Column(String, nullable=True)
 
 
 class MaterialDB(Base):
@@ -86,6 +92,7 @@ class MaterialDB(Base):
     rango_mision = Column(Integer, nullable=False)
     obtenido_de = Column(String(100), nullable=False)
     descripcion = Column(String, nullable=True)
+    imagen = Column(String, nullable=True)
 
 
 class AreaDB(Base):
@@ -94,3 +101,4 @@ class AreaDB(Base):
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String(100), nullable=False)
     descripcion = Column(String, nullable=True)
+    imagen = Column(String, nullable=True)
