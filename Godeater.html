@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>God Eaters - God Eater Wiki</title>
+</head>
+<body>
+
+<nav>
+    <a href="index.html">Inicio</a> |
+    <a href="aragami.html">Aragami</a> |
+    <a href="armas.html">Armas</a> |
+    <a href="godeater.html">God Eaters</a> |
+    <a href="areas.html">Áreas</a> |
+    <a href="materiales.html">Materiales</a>
+</nav>
+
+<h1>God Eaters</h1>
+
+<input type="text" id="buscador" placeholder="Buscar por nombre o rango..." oninput="filtrar()">
+
+<div id="lista">Cargando...</div>
+
+<div id="detalle" style="display:none;">
+    <button onclick="cerrarDetalle()">← Volver</button>
+    <div id="detalle-contenido"></div>
+</div>
+
+<script>
+const API = "http://127.0.0.1:8000";
+let todos = [];
+
+async function cargar() {
+    const res = await fetch(API + "/godeater");
+    todos = await res.json();
+    mostrar(todos);
+}
+
+function mostrar(lista) {
+    if (lista.length === 0) {
+        document.getElementById("lista").innerHTML = "<p>No se encontraron God Eaters.</p>";
+        return;
+    }
+    let html = "<table border='1'><tr><th>ID</th><th>Nombre</th><th>Rango</th><th>Ver</th></tr>";
+    for (const g of lista) {
+        html += `<tr>
+            <td>${g.id}</td>
+            <td>${g.nombre}</td>
+            <td>${g.rango}</td>
+            <td><button onclick="verDetalle(${g.id})">Ver</button></td>
+        </tr>`;
+    }
+    html += "</table>";
+    document.getElementById("lista").innerHTML = html;
+}
+
+function filtrar() {
+    const texto = document.getElementById("buscador").value.toLowerCase();
+    const filtrados = todos.filter(g =>
+        g.nombre.toLowerCase().includes(texto) ||
+        g.rango.toLowerCase().includes(texto)
+    );
+    mostrar(filtrados);
+}
+
+async function verDetalle(id) {
+    const res = await fetch(API + "/godeater/" + id);
+    const g = await res.json();
+
+    let html = `<h2>${g.nombre}</h2>`;
+    if (g.imagen) html += `<img src="${g.imagen}" alt="${g.nombre}" width="300"><br>`;
+    html += `<p><strong>Rango:</strong> ${g.rango}</p>`;
+    if (g.descripcion) html += `<p><strong>Descripción:</strong> ${g.descripcion}</p>`;
+
+    // Cargar armas si tienen ID
+    if (g.espada_id) {
+        const e = await fetch(API + "/espada/" + g.espada_id).then(r => r.json());
+        html += `<p><strong>Espada:</strong> ${e.nombre} (${e.tipo})</p>`;
+    }
+    if (g.escudo_id) {
+        const e = await fetch(API + "/escudo/" + g.escudo_id).then(r => r.json());
+        html += `<p><strong>Escudo:</strong> ${e.nombre} (${e.tipo})</p>`;
+    }
+    if (g.pistola_id) {
+        const e = await fetch(API + "/pistola/" + g.pistola_id).then(r => r.json());
+        html += `<p><strong>Pistola:</strong> ${e.nombre} (${e.tipo})</p>`;
+    }
+    if (g.unidad_id) {
+        const e = await fetch(API + "/unidad/" + g.unidad_id).then(r => r.json());
+        html += `<p><strong>Unidad de Control:</strong> ${e.nombre} (${e.tipo})</p>`;
+    }
+
+    document.getElementById("lista").style.display = "none";
+    document.getElementById("buscador").style.display = "none";
+    document.getElementById("detalle-contenido").innerHTML = html;
+    document.getElementById("detalle").style.display = "block";
+}
+
+function cerrarDetalle() {
+    document.getElementById("lista").style.display = "block";
+    document.getElementById("buscador").style.display = "block";
+    document.getElementById("detalle").style.display = "none";
+}
+
+cargar();
+</script>
+
+</body>
+</html>

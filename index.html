@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>God Eater Burst Wiki</title>
+</head>
+<body>
+
+<nav>
+    <a href="index.html">Inicio</a> |
+    <a href="aragami.html">Aragami</a> |
+    <a href="armas.html">Armas</a> |
+    <a href="godeater.html">God Eaters</a> |
+    <a href="areas.html">Áreas</a> |
+    <a href="materiales.html">Materiales</a>
+</nav>
+
+<h1>God Eater Wiki</h1>
+<p>Bienvenido a la wiki no oficial de God Eater. Aquí encontrarás información sobre Aragami, armas, God Eaters, áreas y materiales.</p>
+
+<hr>
+
+<h2>¿Qué es God Eater?</h2>
+<p>God Eater es una serie de videojuegos de acción RPG desarrollada por Bandai Namco. En un mundo post-apocalíptico dominado por criaturas llamadas Aragami, un grupo de soldados conocidos como God Eaters usan armas especiales llamadas God Arc para combatirlos.</p>
+
+<hr>
+
+<h2>Resumen</h2>
+<div id="resumen">Cargando estadísticas...</div>
+
+<script>
+const API = "http://127.0.0.1:8000";
+
+async function cargarResumen() {
+    const secciones = [
+        { nombre: "Aragami", url: "/aragami" },
+        { nombre: "Espadas", url: "/espada" },
+        { nombre: "Escudos", url: "/escudo" },
+        { nombre: "Pistolas", url: "/pistola" },
+        { nombre: "God Eaters", url: "/godeater" },
+        { nombre: "Áreas", url: "/area" },
+        { nombre: "Materiales", url: "/material" },
+    ];
+
+    let html = "<ul>";
+    for (const s of secciones) {
+        const res = await fetch(API + s.url);
+        const data = await res.json();
+        html += `<li><a href="${s.url.replace("/","")}.html">${s.nombre}</a>: ${data.length} registros</li>`;
+    }
+    html += "</ul>";
+    document.getElementById("resumen").innerHTML = html;
+}
+
+cargarResumen();
+</script>
+
+</body>
+</html>
