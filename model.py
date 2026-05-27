@@ -4,10 +4,11 @@ from enum import Enum
 
 
 class ElementoEnum(str, Enum):
-    fuego = "Fuego"
-    hielo = "Hielo"
-    rayo = "Rayo"
+    fuego  = "Fuego"
+    hielo  = "Hielo"
+    rayo   = "Rayo"
     divino = "Divino"
+    ninguno = "Ninguno"
 
 
 class TipoEspadaEnum(str, Enum):
