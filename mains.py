@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel as PydanticBase
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from Batabase import get_db, engine
 import Models_db
@@ -19,6 +20,12 @@ Models_db.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/aragami")
 def listar_aragami(db: Session = Depends(get_db)):
