@@ -27,8 +27,40 @@
     <div id="detalle-contenido"></div>
 </div>
 
+<hr>
+
+<!-- Botón para mostrar login -->
+<div id="login-box">
+    <button onclick="mostrarLogin()">+ Agregar Aragami (Admin)</button>
+</div>
+
+<!-- Login admin -->
+<div id="login-form" style="display:none;padding:16px;border:1px solid #ccc;margin-top:12px;">
+    <h3>Acceso Admin</h3>
+    <label>Usuario: <input type="text" id="admin-user" placeholder="admin"></label><br><br>
+    <label>Contraseña: <input type="password" id="admin-pass"></label><br><br>
+    <button onclick="verificarLogin()">Entrar</button>
+    <button onclick="cancelarLogin()">Cancelar</button>
+    <p id="login-error" style="color:red;display:none">Usuario o contraseña incorrectos</p>
+</div>
+
+<!-- Formulario crear aragami -->
+<div id="form-aragami" style="display:none;padding:16px;border:1px solid #ccc;margin-top:12px;">
+    <h3>Crear Aragami</h3>
+    <label>Nombre: <input type="text" id="ar-nombre" placeholder="Ej: Ogretail"></label><br><br>
+    <label>Tipo: <input type="text" id="ar-tipo" placeholder="Ej: Depredador"></label><br><br>
+    <label>Debilidades (separadas por coma): <input type="text" id="ar-debilidades" placeholder="Ej: Fuego, Rayo"></label><br><br>
+    <label>Descripción: <textarea id="ar-descripcion" rows="3" placeholder="Descripción del aragami..."></textarea></label><br><br>
+    <label>URL Imagen: <input type="text" id="ar-imagen" placeholder="https://..."></label><br><br>
+    <button onclick="crearAragami()">Crear</button>
+    <button onclick="cerrarFormulario()">Cancelar</button>
+    <p id="ar-msg"></p>
+</div>
+
 <script>
 const API = "http://127.0.0.1:8000";
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "godeater2026";
 let todos = [];
 
 async function cargar() {
@@ -84,6 +116,78 @@ function cerrarDetalle() {
     document.getElementById("lista").style.display = "block";
     document.getElementById("buscador").style.display = "block";
     document.getElementById("detalle").style.display = "none";
+}
+
+function mostrarLogin() {
+    document.getElementById("login-box").style.display = "none";
+    document.getElementById("login-form").style.display = "block";
+}
+
+function cancelarLogin() {
+    document.getElementById("login-form").style.display = "none";
+    document.getElementById("login-box").style.display = "block";
+    document.getElementById("login-error").style.display = "none";
+}
+
+function verificarLogin() {
+    const user = document.getElementById("admin-user").value;
+    const pass = document.getElementById("admin-pass").value;
+    if (user === ADMIN_USER && pass === ADMIN_PASS) {
+        document.getElementById("login-form").style.display = "none";
+        document.getElementById("form-aragami").style.display = "block";
+    } else {
+        document.getElementById("login-error").style.display = "block";
+    }
+}
+
+function cerrarFormulario() {
+    document.getElementById("form-aragami").style.display = "none";
+    document.getElementById("login-box").style.display = "block";
+}
+
+async function crearAragami() {
+    const nombre = document.getElementById("ar-nombre").value.trim();
+    const tipo = document.getElementById("ar-tipo").value.trim();
+    if (!nombre || !tipo) {
+        document.getElementById("ar-msg").style.color = "red";
+        document.getElementById("ar-msg").textContent = "Nombre y tipo son obligatorios";
+        return;
+    }
+    const debilidades = document.getElementById("ar-debilidades").value
+        .split(",").map(d => d.trim()).filter(d => d);
+
+    const res = await fetch(API + "/aragami", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            nombre,
+            tipo,
+            debilidades,
+            descripcion: document.getElementById("ar-descripcion").value || null,
+        })
+    });
+    const data = await res.json();
+    if (res.ok) {
+        const imagen = document.getElementById("ar-imagen").value.trim();
+        if (imagen) {
+            await fetch(`${API}/imagen/aragami/${data.id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ url: imagen })
+            });
+        }
+        document.getElementById("ar-msg").style.color = "green";
+        document.getElementById("ar-msg").textContent = "Aragami creado correctamente";
+        document.getElementById("ar-nombre").value = "";
+        document.getElementById("ar-tipo").value = "";
+        document.getElementById("ar-debilidades").value = "";
+        document.getElementById("ar-descripcion").value = "";
+        document.getElementById("ar-imagen").value = "";
+        cargar();
+    } else {
+        document.getElementById("ar-msg").style.color = "red";
+        document.getElementById("ar-msg").textContent = "Error al crear el aragami";
+    }
 }
 
 cargar();
