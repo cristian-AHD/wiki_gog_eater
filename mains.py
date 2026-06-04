@@ -85,8 +85,6 @@ def eliminar_aragami(id: int, db: Session = Depends(get_db)):
     return {"mensaje": "Aragami eliminado", "id": id, "nombre": aragami.nombre}
 
 
-# ── Espada ────────────────────────────────────────────────────────────────────
-
 @app.get("/espada")
 def listar_espadas(db: Session = Depends(get_db)):
     return db.query(Models_db.EspadaDB).all()
@@ -213,7 +211,6 @@ def eliminar_escudo(id: int, db: Session = Depends(get_db)):
     return {"mensaje": "Escudo eliminado", "id": id, "nombre": escudo.nombre}
 
 
-# ── Pistola ───────────────────────────────────────────────────────────────────
 
 @app.get("/pistola")
 def listar_pistolas(db: Session = Depends(get_db)):
@@ -477,8 +474,6 @@ def eliminar_material(id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"mensaje": "Material eliminado", "id": id, "nombre": material.nombre}
 
-
-# ── Area ──────────────────────────────────────────────────────────────────────
 
 @app.get("/area")
 def listar_areas(db: Session = Depends(get_db)):

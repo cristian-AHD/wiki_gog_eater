@@ -175,10 +175,13 @@ class MaterialCreate(BaseModel):
     obtenido_de: str
     descripcion: Optional[str] = None
 
+
 class Area(BaseModel):
     id: int
     nombre: str = Field(..., min_length=1, max_length=100)
     descripcion: Optional[str] = None
+    imagen: Optional[str] = None
+    imagen_mapa: Optional[str] = None
 
 
 class AreaCreate(BaseModel):

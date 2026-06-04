@@ -102,3 +102,4 @@ class AreaDB(Base):
     nombre = Column(String(100), nullable=False)
     descripcion = Column(String, nullable=True)
     imagen = Column(String, nullable=True)
+    imagen_mapa = Column(String, nullable=True)
