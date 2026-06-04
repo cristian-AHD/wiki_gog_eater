@@ -112,6 +112,7 @@ def crear_espada(data: EspadaCreate, db: Session = Depends(get_db)):
         elemento=data.elemento.value, sunder=data.sunder,
         crush=data.crush, pierce=data.pierce,
         valor_elemento=data.valor_elemento,
+        materiales=data.materiales,
     )
     db.add(nuevo);
     db.commit();
@@ -146,9 +147,6 @@ def eliminar_espada(id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"mensaje": "Espada eliminada", "id": id, "nombre": espada.nombre}
 
-
-# ── Escudo ────────────────────────────────────────────────────────────────────
-
 @app.get("/escudo")
 def listar_escudos(db: Session = Depends(get_db)):
     return db.query(Models_db.EscudoDB).all()
@@ -176,6 +174,7 @@ def crear_escudo(data: EscudoCreate, db: Session = Depends(get_db)):
         elemento=data.elemento.value, sunder=data.sunder,
         crush=data.crush, pierce=data.pierce,
         valor_elemento=data.valor_elemento,
+        materiales=data.materiales,
     )
     db.add(nuevo);
     db.commit();
@@ -239,6 +238,7 @@ def crear_pistola(data: PistolaCreate, db: Session = Depends(get_db)):
         elemento=data.elemento.value, sunder=data.sunder,
         crush=data.crush, pierce=data.pierce,
         valor_elemento=data.valor_elemento,
+        materiales=data.materiales,
     )
     db.add(nuevo);
     db.commit();
@@ -273,8 +273,6 @@ def eliminar_pistola(id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"mensaje": "Pistola eliminada", "id": id, "nombre": pistola.nombre}
 
-
-# ── Unidad de Control ─────────────────────────────────────────────────────────
 
 @app.get("/unidad")
 def listar_unidades(db: Session = Depends(get_db)):
@@ -378,8 +376,6 @@ def eliminar_godeater(id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"mensaje": "GodEater eliminado", "id": id, "nombre": godeater.nombre}
 
-
-# ── Material ──────────────────────────────────────────────────────────────────
 
 @app.get("/material")
 def listar_materiales(db: Session = Depends(get_db)):
