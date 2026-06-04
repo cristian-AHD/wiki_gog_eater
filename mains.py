@@ -109,13 +109,12 @@ def buscar_espada(id: int, db: Session = Depends(get_db)):
 def crear_espada(data: EspadaCreate, db: Session = Depends(get_db)):
     nuevo = Models_db.EspadaDB(
         nombre=data.nombre, tipo=data.tipo.value,
-        elemento=data.elemento.value, sunder=data.sunder,
-        crush=data.crush, pierce=data.pierce,
-        valor_elemento=data.valor_elemento,
+        elementos=[{"elemento": e.elemento.value, "valor": e.valor} for e in data.elementos],
+        sunder=data.sunder, crush=data.crush, pierce=data.pierce,
         materiales=data.materiales,
     )
-    db.add(nuevo);
-    db.commit();
+    db.add(nuevo)
+    db.commit()
     db.refresh(nuevo)
     return nuevo
 
@@ -125,15 +124,14 @@ def actualizar_espada(id: int, data: EspadaCreate, db: Session = Depends(get_db)
     espada = db.query(Models_db.EspadaDB).filter(Models_db.EspadaDB.id == id).first()
     if not espada:
         raise HTTPException(404, "Espada no encontrada")
-    espada.nombre = data.nombre;
+    espada.nombre = data.nombre
     espada.tipo = data.tipo.value
-    espada.elemento = data.elemento.value;
+    espada.elementos = [{"elemento": e.elemento.value, "valor": e.valor} for e in data.elementos]
     espada.sunder = data.sunder
-    espada.crush = data.crush;
+    espada.crush = data.crush
     espada.pierce = data.pierce
-    espada.valor_elemento = data.valor_elemento
-    espada.materiales = data.materiales;
-    db.commit();
+    espada.materiales = data.materiales
+    db.commit()
     db.refresh(espada)
     return espada
 
@@ -146,6 +144,9 @@ def eliminar_espada(id: int, db: Session = Depends(get_db)):
     db.delete(espada);
     db.commit()
     return {"mensaje": "Espada eliminada", "id": id, "nombre": espada.nombre}
+
+
+# ── Escudo ────────────────────────────────────────────────────────────────────
 
 @app.get("/escudo")
 def listar_escudos(db: Session = Depends(get_db)):
@@ -171,13 +172,12 @@ def buscar_escudo(id: int, db: Session = Depends(get_db)):
 def crear_escudo(data: EscudoCreate, db: Session = Depends(get_db)):
     nuevo = Models_db.EscudoDB(
         nombre=data.nombre, tipo=data.tipo.value,
-        elemento=data.elemento.value, sunder=data.sunder,
-        crush=data.crush, pierce=data.pierce,
-        valor_elemento=data.valor_elemento,
+        elementos=[{"elemento": e.elemento.value, "valor": e.valor} for e in data.elementos],
+        sunder=data.sunder, crush=data.crush, pierce=data.pierce,
         materiales=data.materiales,
     )
-    db.add(nuevo);
-    db.commit();
+    db.add(nuevo)
+    db.commit()
     db.refresh(nuevo)
     return nuevo
 
@@ -187,15 +187,14 @@ def actualizar_escudo(id: int, data: EscudoCreate, db: Session = Depends(get_db)
     escudo = db.query(Models_db.EscudoDB).filter(Models_db.EscudoDB.id == id).first()
     if not escudo:
         raise HTTPException(404, "Escudo no encontrado")
-    escudo.nombre = data.nombre;
+    escudo.nombre = data.nombre
     escudo.tipo = data.tipo.value
-    escudo.elemento = data.elemento.value;
+    escudo.elementos = [{"elemento": e.elemento.value, "valor": e.valor} for e in data.elementos]
     escudo.sunder = data.sunder
-    escudo.crush = data.crush;
+    escudo.crush = data.crush
     escudo.pierce = data.pierce
-    escudo.valor_elemento = data.valor_elemento
-    escudo.materiales = data.materiales;
-    db.commit();
+    escudo.materiales = data.materiales
+    db.commit()
     db.refresh(escudo)
     return escudo
 
@@ -235,13 +234,12 @@ def buscar_pistola(id: int, db: Session = Depends(get_db)):
 def crear_pistola(data: PistolaCreate, db: Session = Depends(get_db)):
     nuevo = Models_db.PistolDB(
         nombre=data.nombre, tipo=data.tipo.value,
-        elemento=data.elemento.value, sunder=data.sunder,
-        crush=data.crush, pierce=data.pierce,
-        valor_elemento=data.valor_elemento,
+        elementos=[{"elemento": e.elemento.value, "valor": e.valor} for e in data.elementos],
+        sunder=data.sunder, crush=data.crush, pierce=data.pierce,
         materiales=data.materiales,
     )
-    db.add(nuevo);
-    db.commit();
+    db.add(nuevo)
+    db.commit()
     db.refresh(nuevo)
     return nuevo
 
@@ -251,15 +249,14 @@ def actualizar_pistola(id: int, data: PistolaCreate, db: Session = Depends(get_d
     pistola = db.query(Models_db.PistolDB).filter(Models_db.PistolDB.id == id).first()
     if not pistola:
         raise HTTPException(404, "Pistola no encontrada")
-    pistola.nombre = data.nombre;
+    pistola.nombre = data.nombre
     pistola.tipo = data.tipo.value
-    pistola.elemento = data.elemento.value;
+    pistola.elementos = [{"elemento": e.elemento.value, "valor": e.valor} for e in data.elementos]
     pistola.sunder = data.sunder
-    pistola.crush = data.crush;
+    pistola.crush = data.crush
     pistola.pierce = data.pierce
-    pistola.valor_elemento = data.valor_elemento
-    pistola.materiales = data.materiales;
-    db.commit();
+    pistola.materiales = data.materiales
+    db.commit()
     db.refresh(pistola)
     return pistola
 
@@ -273,6 +270,8 @@ def eliminar_pistola(id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"mensaje": "Pistola eliminada", "id": id, "nombre": pistola.nombre}
 
+
+# ── Unidad de Control ─────────────────────────────────────────────────────────
 
 @app.get("/unidad")
 def listar_unidades(db: Session = Depends(get_db)):
@@ -321,6 +320,9 @@ def eliminar_unidad(id: int, db: Session = Depends(get_db)):
     db.delete(unidad);
     db.commit()
     return {"mensaje": "Unidad eliminada", "id": id, "nombre": unidad.nombre}
+
+
+# ── GodEater ──────────────────────────────────────────────────────────────────
 
 @app.get("/godeater")
 def listar_godeater(db: Session = Depends(get_db)):
@@ -376,6 +378,8 @@ def eliminar_godeater(id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"mensaje": "GodEater eliminado", "id": id, "nombre": godeater.nombre}
 
+
+# ── Material ──────────────────────────────────────────────────────────────────
 
 @app.get("/material")
 def listar_materiales(db: Session = Depends(get_db)):

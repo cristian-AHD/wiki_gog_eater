@@ -19,11 +19,10 @@ class EspadaDB(Base):
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String(100), nullable=False)
     tipo = Column(String(50), nullable=False)
-    elemento = Column(String(50), nullable=False)
+    elementos = Column(JSON, default=list)   # [{"elemento": "Fuego", "valor": 150}, ...]
     sunder = Column(Integer, default=0)
     crush = Column(Integer, default=0)
     pierce = Column(Integer, default=0)
-    valor_elemento = Column(Integer, default=0)
     materiales = Column(JSON, default=list)
     imagen = Column(String, nullable=True)
 
@@ -34,11 +33,10 @@ class EscudoDB(Base):
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String(100), nullable=False)
     tipo = Column(String(50), nullable=False)
-    elemento = Column(String(50), nullable=False)
+    elementos = Column(JSON, default=list)   # [{"elemento": "Hielo", "valor": 100}, ...]
     sunder = Column(Integer, default=0)
     crush = Column(Integer, default=0)
     pierce = Column(Integer, default=0)
-    valor_elemento = Column(Integer, default=0)
     materiales = Column(JSON, default=list)
     imagen = Column(String, nullable=True)
 
@@ -49,11 +47,10 @@ class PistolDB(Base):
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String(100), nullable=False)
     tipo = Column(String(50), nullable=False)
-    elemento = Column(String(50), nullable=False)
+    elementos = Column(JSON, default=list)   # [{"elemento": "Rayo", "valor": 200}, ...]
     sunder = Column(Integer, default=0)
     crush = Column(Integer, default=0)
     pierce = Column(Integer, default=0)
-    valor_elemento = Column(Integer, default=0)
     materiales = Column(JSON, default=list)
     imagen = Column(String, nullable=True)
 
