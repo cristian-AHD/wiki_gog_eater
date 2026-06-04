@@ -75,10 +75,6 @@ class GodEaterDB(Base):
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String(100), nullable=False)
     rango = Column(String(100), nullable=False)
-    espada_id = Column(Integer, nullable=True)
-    escudo_id = Column(Integer, nullable=True)
-    pistola_id = Column(Integer, nullable=True)
-    unidad_id = Column(Integer, nullable=True)
     descripcion = Column(String, nullable=True)
     imagen = Column(String, nullable=True)
 

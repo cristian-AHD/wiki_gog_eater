@@ -147,20 +147,12 @@ class GodEater(BaseModel):
     id: int
     nombre: str = Field(..., min_length=1, max_length=100)
     rango: str
-    espada_id: Optional[int] = None
-    escudo_id: Optional[int] = None
-    pistola_id: Optional[int] = None
-    unidad_id: Optional[int] = None
     descripcion: Optional[str] = None
 
 
 class GodEaterCreate(BaseModel):
     nombre: str = Field(..., min_length=1, max_length=100)
     rango: str
-    espada_id: Optional[int] = None
-    escudo_id: Optional[int] = None
-    pistola_id: Optional[int] = None
-    unidad_id: Optional[int] = None
     descripcion: Optional[str] = None
 
 

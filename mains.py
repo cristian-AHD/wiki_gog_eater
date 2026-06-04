@@ -324,9 +324,6 @@ def eliminar_unidad(id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"mensaje": "Unidad eliminada", "id": id, "nombre": unidad.nombre}
 
-
-# ── GodEater ──────────────────────────────────────────────────────────────────
-
 @app.get("/godeater")
 def listar_godeater(db: Session = Depends(get_db)):
     return db.query(Models_db.GodEaterDB).all()
@@ -349,21 +346,8 @@ def buscar_godeater(id: int, db: Session = Depends(get_db)):
 
 @app.post("/godeater")
 def crear_godeater(data: GodEaterCreate, db: Session = Depends(get_db)):
-    # Validar que los IDs referenciados existan
-    if data.espada_id and not db.query(Models_db.EspadaDB).filter(Models_db.EspadaDB.id == data.espada_id).first():
-        raise HTTPException(404, "Espada no encontrada")
-    if data.escudo_id and not db.query(Models_db.EscudoDB).filter(Models_db.EscudoDB.id == data.escudo_id).first():
-        raise HTTPException(404, "Escudo no encontrado")
-    if data.pistola_id and not db.query(Models_db.PistolDB).filter(Models_db.PistolDB.id == data.pistola_id).first():
-        raise HTTPException(404, "Pistola no encontrada")
-    if data.unidad_id and not db.query(Models_db.UnidadControlDB).filter(
-            Models_db.UnidadControlDB.id == data.unidad_id).first():
-        raise HTTPException(404, "Unidad de control no encontrada")
-
     nuevo = Models_db.GodEaterDB(
         nombre=data.nombre, rango=data.rango,
-        espada_id=data.espada_id, escudo_id=data.escudo_id,
-        pistola_id=data.pistola_id, unidad_id=data.unidad_id,
         descripcion=data.descripcion,
     )
     db.add(nuevo);
@@ -377,21 +361,8 @@ def actualizar_godeater(id: int, data: GodEaterCreate, db: Session = Depends(get
     godeater = db.query(Models_db.GodEaterDB).filter(Models_db.GodEaterDB.id == id).first()
     if not godeater:
         raise HTTPException(404, "GodEater no encontrado")
-    if data.espada_id and not db.query(Models_db.EspadaDB).filter(Models_db.EspadaDB.id == data.espada_id).first():
-        raise HTTPException(404, "Espada no encontrada")
-    if data.escudo_id and not db.query(Models_db.EscudoDB).filter(Models_db.EscudoDB.id == data.escudo_id).first():
-        raise HTTPException(404, "Escudo no encontrado")
-    if data.pistola_id and not db.query(Models_db.PistolDB).filter(Models_db.PistolDB.id == data.pistola_id).first():
-        raise HTTPException(404, "Pistola no encontrada")
-    if data.unidad_id and not db.query(Models_db.UnidadControlDB).filter(
-            Models_db.UnidadControlDB.id == data.unidad_id).first():
-        raise HTTPException(404, "Unidad de control no encontrada")
     godeater.nombre = data.nombre;
     godeater.rango = data.rango
-    godeater.espada_id = data.espada_id;
-    godeater.escudo_id = data.escudo_id
-    godeater.pistola_id = data.pistola_id;
-    godeater.unidad_id = data.unidad_id
     godeater.descripcion = data.descripcion
     db.commit();
     db.refresh(godeater)
