@@ -39,6 +39,11 @@ class OrigenEnum(str, Enum):
     aragami = "Aragami"
     objetivo_perdido = "Objetivo Perdido"
 
+class RangoMisionEnum(str, Enum):
+    bajo  = "1-3"
+    medio = "4-6"
+    alto  = "7-10"
+
 
 class Aragami(BaseModel):
     id: int
@@ -163,15 +168,16 @@ class Material(BaseModel):
     id: int
     nombre: str = Field(..., min_length=1, max_length=100)
     origen: OrigenEnum
-    rango_mision: int = Field(..., ge=1, le=10)
+    rango_mision: RangoMisionEnum
     obtenido_de: str
     descripcion: Optional[str] = None
+    imagen: Optional[str] = None
 
 
 class MaterialCreate(BaseModel):
     nombre: str = Field(..., min_length=1, max_length=100)
     origen: OrigenEnum
-    rango_mision: int = Field(..., ge=1, le=10)
+    rango_mision: RangoMisionEnum
     obtenido_de: str
     descripcion: Optional[str] = None
 

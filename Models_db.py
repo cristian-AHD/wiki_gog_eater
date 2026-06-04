@@ -89,7 +89,7 @@ class MaterialDB(Base):
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String(100), nullable=False)
     origen = Column(String(50), nullable=False)
-    rango_mision = Column(Integer, nullable=False)
+    rango_mision = Column(String(10), nullable=False)
     obtenido_de = Column(String(100), nullable=False)
     descripcion = Column(String, nullable=True)
     imagen = Column(String, nullable=True)

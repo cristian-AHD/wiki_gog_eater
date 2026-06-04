@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>God Eater Burst Wiki</title>
+    <title>God Eater Wiki</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -29,31 +30,163 @@
 <h2>Resumen</h2>
 <div id="resumen">Cargando estadísticas...</div>
 
+<hr>
+
+<h2>Comparador de God Arc</h2>
+<p>Selecciona las partes de tu God Arc y compara sus estadísticas.</p>
+
+<div>
+    <label>Espada:
+        <select id="sel-espada" onchange="actualizarGrafica()">
+            <option value="">-- Ninguna --</option>
+        </select>
+    </label>
+    <label>Escudo:
+        <select id="sel-escudo" onchange="actualizarGrafica()">
+            <option value="">-- Ninguna --</option>
+        </select>
+    </label>
+    <label>Pistola:
+        <select id="sel-pistola" onchange="actualizarGrafica()">
+            <option value="">-- Ninguna --</option>
+        </select>
+    </label>
+    <label>Unidad de Control:
+        <select id="sel-unidad" onchange="actualizarGrafica()">
+            <option value="">-- Ninguna --</option>
+        </select>
+    </label>
+</div>
+
+<br>
+<button onclick="mostrarGrafica('barras')">📊 Gráfica de Barras</button>
+<button onclick="mostrarGrafica('radar')">🔷 Gráfica de Rombo</button>
+
+<div style="max-width:700px;margin-top:20px;">
+    <canvas id="grafica"></canvas>
+</div>
+
 <script>
 const API = "http://127.0.0.1:8000";
+let grafica = null;
+let tipoGrafica = "barras";
+let datosArmas = { espada: [], escudo: [], pistola: [], unidad: [] };
 
 async function cargarResumen() {
     const secciones = [
-        { nombre: "Aragami", url: "/aragami" },
-        { nombre: "Espadas", url: "/espada" },
-        { nombre: "Escudos", url: "/escudo" },
-        { nombre: "Pistolas", url: "/pistola" },
-        { nombre: "God Eaters", url: "/godeater" },
-        { nombre: "Áreas", url: "/area" },
-        { nombre: "Materiales", url: "/material" },
+        { nombre: "Aragami", url: "/aragami", link: "aragami.html" },
+        { nombre: "Espadas", url: "/espada", link: "armas.html" },
+        { nombre: "Escudos", url: "/escudo", link: "armas.html" },
+        { nombre: "Pistolas", url: "/pistola", link: "armas.html" },
+        { nombre: "God Eaters", url: "/godeater", link: "godeater.html" },
+        { nombre: "Áreas", url: "/area", link: "areas.html" },
+        { nombre: "Materiales", url: "/material", link: "materiales.html" },
     ];
-
     let html = "<ul>";
     for (const s of secciones) {
         const res = await fetch(API + s.url);
         const data = await res.json();
-        html += `<li><a href="${s.url.replace("/","")}.html">${s.nombre}</a>: ${data.length} registros</li>`;
+        html += `<li><a href="${s.link}">${s.nombre}</a>: ${data.length} registros</li>`;
     }
     html += "</ul>";
     document.getElementById("resumen").innerHTML = html;
 }
 
+async function cargarSelectores() {
+    const [espadas, escudos, pistolas, unidades] = await Promise.all([
+        fetch(API + "/espada").then(r => r.json()),
+        fetch(API + "/escudo").then(r => r.json()),
+        fetch(API + "/pistola").then(r => r.json()),
+        fetch(API + "/unidad").then(r => r.json()),
+    ]);
+
+    datosArmas.espada = espadas;
+    datosArmas.escudo = escudos;
+    datosArmas.pistola = pistolas;
+    datosArmas.unidad = unidades;
+
+    llenarSelect("sel-espada", espadas);
+    llenarSelect("sel-escudo", escudos);
+    llenarSelect("sel-pistola", pistolas);
+    llenarSelect("sel-unidad", unidades);
+}
+
+function llenarSelect(id, lista) {
+    const sel = document.getElementById(id);
+    for (const item of lista) {
+        const opt = document.createElement("option");
+        opt.value = item.id;
+        opt.textContent = `${item.nombre} (${item.tipo})`;
+        sel.appendChild(opt);
+    }
+}
+
+function getArmaSeleccionada(tipo, id) {
+    return datosArmas[tipo].find(a => a.id == id);
+}
+
+function actualizarGrafica() {
+    const espId = document.getElementById("sel-espada").value;
+    const escId = document.getElementById("sel-escudo").value;
+    const pisId = document.getElementById("sel-pistola").value;
+    const uniId = document.getElementById("sel-unidad").value;
+
+    const partes = [];
+    if (espId) partes.push({ label: "Espada", data: getArmaSeleccionada("espada", espId) });
+    if (escId) partes.push({ label: "Escudo", data: getArmaSeleccionada("escudo", escId) });
+    if (pisId) partes.push({ label: "Pistola", data: getArmaSeleccionada("pistola", pisId) });
+    if (uniId) partes.push({ label: "Unidad", data: getArmaSeleccionada("unidad", uniId) });
+
+    if (partes.length === 0) {
+        if (grafica) { grafica.destroy(); grafica = null; }
+        return;
+    }
+
+    const labels = ["Sunder", "Crush", "Pierce", "Val. Elemento"];
+    const colores = ["rgba(220,53,69,0.7)", "rgba(13,110,253,0.7)", "rgba(25,135,84,0.7)", "rgba(255,193,7,0.7)"];
+
+    const datasets = partes.map((p, i) => ({
+        label: `${p.label}: ${p.data?.nombre || ""}`,
+        data: [
+            p.data?.sunder || 0,
+            p.data?.crush || 0,
+            p.data?.pierce || 0,
+            p.data?.valor_elemento || 0,
+        ],
+        backgroundColor: colores[i],
+        borderColor: colores[i].replace("0.7", "1"),
+        borderWidth: 2,
+    }));
+
+    if (grafica) grafica.destroy();
+
+    const ctx = document.getElementById("grafica").getContext("2d");
+    grafica = new Chart(ctx, {
+        type: tipoGrafica === "barras" ? "bar" : "radar",
+        data: { labels, datasets },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: "top" },
+                title: {
+                    display: true,
+                    text: tipoGrafica === "barras" ? "Estadísticas del God Arc" : "Comparativa del God Arc"
+                }
+            },
+            scales: tipoGrafica === "barras" ? {
+                y: { beginAtZero: true }
+            } : {}
+        }
+    });
+}
+
+function mostrarGrafica(tipo) {
+    tipoGrafica = tipo;
+    actualizarGrafica();
+}
+
 cargarResumen();
+cargarSelectores();
 </script>
 
 </body>
