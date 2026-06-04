@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>God Eater Wiki</title>
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -17,54 +18,59 @@
     <a href="materiales.html">Materiales</a>
 </nav>
 
-<h1>God Eater Wiki</h1>
-<p>Bienvenido a la wiki no oficial de God Eater. Aquí encontrarás información sobre Aragami, armas, God Eaters, áreas y materiales.</p>
-
-<hr>
-
-<h2>¿Qué es God Eater?</h2>
-<p>God Eater es una serie de videojuegos de acción RPG desarrollada por Bandai Namco. En un mundo post-apocalíptico dominado por criaturas llamadas Aragami, un grupo de soldados conocidos como God Eaters usan armas especiales llamadas God Arc para combatirlos.</p>
-
-<hr>
-
-<h2>Resumen</h2>
-<div id="resumen">Cargando estadísticas...</div>
-
-<hr>
-
-<h2>Comparador de God Arc</h2>
-<p>Selecciona las partes de tu God Arc y compara sus estadísticas.</p>
-
-<div>
-    <label>Espada:
-        <select id="sel-espada" onchange="actualizarGrafica()">
-            <option value="">-- Ninguna --</option>
-        </select>
-    </label>
-    <label>Escudo:
-        <select id="sel-escudo" onchange="actualizarGrafica()">
-            <option value="">-- Ninguna --</option>
-        </select>
-    </label>
-    <label>Pistola:
-        <select id="sel-pistola" onchange="actualizarGrafica()">
-            <option value="">-- Ninguna --</option>
-        </select>
-    </label>
-    <label>Unidad de Control:
-        <select id="sel-unidad" onchange="actualizarGrafica()">
-            <option value="">-- Ninguna --</option>
-        </select>
-    </label>
+<div class="hero">
+    <div class="logo-decorativo"></div>
+    <div>
+        <h1>GOD EATER WIKI</h1>
+        <p>Enciclopedia del universo God Eater</p>
+    </div>
 </div>
 
-<br>
-<button onclick="mostrarGrafica('barras')">📊 Gráfica de Barras</button>
-<button onclick="mostrarGrafica('radar')">🔷 Gráfica de Rombo</button>
+<main>
+    <h2>¿Qué es God Eater?</h2>
+    <p>God Eater es una serie de videojuegos de acción RPG desarrollada por Bandai Namco. En un mundo post-apocalíptico dominado por criaturas llamadas Aragami, un grupo de soldados conocidos como God Eaters usan armas especiales llamadas God Arc para combatirlos.</p>
 
-<div style="max-width:700px;margin-top:20px;">
-    <canvas id="grafica"></canvas>
-</div>
+    <hr>
+
+    <h2>Resumen de la Wiki</h2>
+    <div id="resumen">Cargando estadísticas...</div>
+
+    <hr>
+
+    <h2>Comparador de God Arc</h2>
+    <p>Selecciona las partes de tu God Arc y compara sus estadísticas.</p>
+
+    <div>
+        <label>Espada:
+            <select id="sel-espada" onchange="actualizarGrafica()">
+                <option value="">-- Ninguna --</option>
+            </select>
+        </label>
+        <label>Escudo:
+            <select id="sel-escudo" onchange="actualizarGrafica()">
+                <option value="">-- Ninguna --</option>
+            </select>
+        </label>
+        <label>Pistola:
+            <select id="sel-pistola" onchange="actualizarGrafica()">
+                <option value="">-- Ninguna --</option>
+            </select>
+        </label>
+        <label>Unidad de Control:
+            <select id="sel-unidad" onchange="actualizarGrafica()">
+                <option value="">-- Ninguna --</option>
+            </select>
+        </label>
+    </div>
+
+    <br>
+    <button onclick="mostrarGrafica('barras')">📊 Gráfica de Barras</button>
+    <button onclick="mostrarGrafica('radar')">🔷 Gráfica de Rombo</button>
+
+    <div style="max-width:700px;">
+        <canvas id="grafica"></canvas>
+    </div>
+</main>
 
 <script>
 const API = "http://127.0.0.1:8000";

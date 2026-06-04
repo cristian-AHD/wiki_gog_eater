@@ -39,6 +39,11 @@ class OrigenEnum(str, Enum):
     aragami = "Aragami"
     objetivo_perdido = "Objetivo Perdido"
 
+
+class ElementoValor(BaseModel):
+    elemento: ElementoEnum
+    valor: int = Field(0, ge=0, description="Puntos de daño elemental")
+
 class RangoMisionEnum(str, Enum):
     bajo  = "1-3"
     medio = "4-6"
@@ -63,22 +68,20 @@ class Espada(BaseModel):
     id: int
     nombre: str = Field(..., min_length=1, max_length=100)
     tipo: TipoEspadaEnum
-    elemento: ElementoEnum
+    elementos: list[ElementoValor] = Field(default_factory=list, description="Ej: [{elemento: Fuego, valor: 150}]")
     sunder: int = Field(0, ge=0)
     crush: int = Field(0, ge=0)
     pierce: int = Field(0, ge=0)
-    valor_elemento: int = Field(0, ge=0)
-    materiales: list[str] = Field(default_factory=list, description="Ej: ['3x Garra de Ogretail']")
+    materiales: list[str] = Field(default_factory=list)
 
 
 class EspadaCreate(BaseModel):
     nombre: str = Field(..., min_length=1, max_length=100)
     tipo: TipoEspadaEnum
-    elemento: ElementoEnum
+    elementos: list[ElementoValor] = Field(default_factory=list)
     sunder: int = Field(0, ge=0)
     crush: int = Field(0, ge=0)
     pierce: int = Field(0, ge=0)
-    valor_elemento: int = Field(0, ge=0)
     materiales: list[str] = Field(default_factory=list)
 
 
@@ -86,22 +89,20 @@ class Escudo(BaseModel):
     id: int
     nombre: str = Field(..., min_length=1, max_length=100)
     tipo: TipoEscudoEnum
-    elemento: ElementoEnum
+    elementos: list[ElementoValor] = Field(default_factory=list)
     sunder: int = Field(0, ge=0)
     crush: int = Field(0, ge=0)
     pierce: int = Field(0, ge=0)
-    valor_elemento: int = Field(0, ge=0)
     materiales: list[str] = Field(default_factory=list)
 
 
 class EscudoCreate(BaseModel):
     nombre: str = Field(..., min_length=1, max_length=100)
     tipo: TipoEscudoEnum
-    elemento: ElementoEnum
+    elementos: list[ElementoValor] = Field(default_factory=list)
     sunder: int = Field(0, ge=0)
     crush: int = Field(0, ge=0)
     pierce: int = Field(0, ge=0)
-    valor_elemento: int = Field(0, ge=0)
     materiales: list[str] = Field(default_factory=list)
 
 
@@ -109,22 +110,20 @@ class Pistola(BaseModel):
     id: int
     nombre: str = Field(..., min_length=1, max_length=100)
     tipo: TipoPistolaEnum
-    elemento: ElementoEnum
+    elementos: list[ElementoValor] = Field(default_factory=list)
     sunder: int = Field(0, ge=0)
     crush: int = Field(0, ge=0)
     pierce: int = Field(0, ge=0)
-    valor_elemento: int = Field(0, ge=0)
     materiales: list[str] = Field(default_factory=list)
 
 
 class PistolaCreate(BaseModel):
     nombre: str = Field(..., min_length=1, max_length=100)
     tipo: TipoPistolaEnum
-    elemento: ElementoEnum
+    elementos: list[ElementoValor] = Field(default_factory=list)
     sunder: int = Field(0, ge=0)
     crush: int = Field(0, ge=0)
     pierce: int = Field(0, ge=0)
-    valor_elemento: int = Field(0, ge=0)
     materiales: list[str] = Field(default_factory=list)
 
 
