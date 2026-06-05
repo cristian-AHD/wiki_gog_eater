@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>God Eater Wiki</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      /* ── PARTICLE CANVAS ── */
+      #particles { position:absolute; inset:0; z-index:1; pointer-events:none; }
+
+      /* ── TYPED SUBTITLE ── */
+      .hero-sub .cursor { display:inline-block; width:2px; height:1em; background:var(--gold); margin-left:2px; animation:blink .7s step-end infinite; }
+      @keyframes blink { 50%{ opacity:0; } }
+
+      /* ── STAT CARDS ── */
+      .stat-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:14px; margin-top:20px; }
+      .stat-card {
+        background:var(--panel);
+        border:1px solid var(--border);
+        border-radius:8px;
+        padding:20px;
+        text-align:center;
+        position:relative;
+        overflow:hidden;
+        transition:all .3s;
+        cursor:pointer;
+        text-decoration:none;
+        display:block;
+      }
+      .stat-card::before {
+        content:'';
+        position:absolute;
+        top:0;left:0;right:0;
+        height:3px;
+        background:linear-gradient(90deg,var(--crimson),var(--gold));
+        transform:scaleX(0);
+        transform-origin:left;
+        transition:transform .4s ease;
+      }
+      .stat-card:hover { transform:translateY(-6px); border-color:var(--gold-dim); box-shadow:0 0 30px rgba(255,215,0,.15); }
+      .stat-card:hover::before { transform:scaleX(1); }
+      .stat-icon { font-size:2.2em; margin-bottom:8px; filter:drop-shadow(0 0 8px var(--crimson)); }
+      .stat-num {
+        font-family:'Orbitron',monospace;
+        font-size:2.4em;
+        font-weight:900;
+        background:linear-gradient(135deg,var(--gold),var(--crimson));
+        -webkit-background-clip:text;
+        background-clip:text;
+        color:transparent;
+        line-height:1;
+        margin-bottom:6px;
+        animation:countUp .8s ease-out both;
+      }
+      .stat-label {
+        font-family:'Orbitron',monospace;
+        font-size:.7em;
+        letter-spacing:.1em;
+        color:#7070a0;
+        text-transform:uppercase;
+      }
+      @keyframes countUp { from{opacity:0;transform:scale(.8);} to{opacity:1;transform:scale(1);} }
+
+      /* ── COMPARADOR ── */
+      .comp-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; margin-bottom:24px; }
+      .comp-slot { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:14px; }
+      .comp-slot label { color:var(--gold-dim); font-size:.75em; margin-bottom:6px; display:block; }
+      .comp-slot select { margin-top:4px; background:var(--panel); }
+
+      /* chart buttons */
+      .chart-btns { display:flex; gap:10px; margin:16px 0; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="index.html">Inicio</a>
+    <a href="Aragami.html">Aragami</a>
+    <a href="Armas.html">Armas</a>
+    <a href="Godeater.html">God Eaters</a>
+    <a href="Areas.html">Áreas</a>
+    <a href="Materiales.html">Materiales</a>
+</nav>
+
+<div class="hero">
+    <canvas id="particles"></canvas>
+    <div class="logo-decorativo"></div>
+    <div style="position:relative;z-index:2;">
+        <h1>GOD EATER WIKI</h1>
+        <p class="hero-sub"><span id="typed"></span><span class="cursor"></span></p>
+    </div>
+</div>
+
+<main>
+    <h2>¿Qué es God Eater?</h2>
+    <p>God Eater es una serie de videojuegos de acción RPG desarrollada por Bandai Namco. En un mundo post-apocalíptico dominado por criaturas llamadas Aragami, un grupo de soldados conocidos como God Eaters usan armas especiales llamadas God Arc para combatirlos.</p>
+
+    <hr>
+
+    <h2>Resumen de la Wiki</h2>
+    <div id="resumen"><p style="color:var(--gold-dim);font-family:'Orbitron',monospace;font-size:.9em;letter-spacing:.1em;">Cargando estadísticas...</p></div>
+
+    <hr>
+
+    <h2>Comparador de God Arc</h2>
+    <p>Selecciona las partes de tu God Arc y compara sus estadísticas de combate.</p>
+
+    <div class="comp-grid">
+        <div class="comp-slot">
+            <label>⚔ Espada</label>
+            <select id="sel-espada" onchange="actualizarGrafica()"><option value="">-- Ninguna --</option></select>
+        </div>
+        <div class="comp-slot">
+            <label>🛡 Escudo</label>
+            <select id="sel-escudo" onchange="actualizarGrafica()"><option value="">-- Ninguna --</option></select>
+        </div>
+        <div class="comp-slot">
+            <label>🔫 Pistola</label>
+            <select id="sel-pistola" onchange="actualizarGrafica()"><option value="">-- Ninguna --</option></select>
+        </div>
+        <div class="comp-slot">
+            <label>⚙ Unidad de Control</label>
+            <select id="sel-unidad" onchange="actualizarGrafica()"><option value="">-- Ninguna --</option></select>
+        </div>
+    </div>
+
+    <div class="chart-btns">
+        <button onclick="mostrarGrafica('barras')">📊 Barras</button>
+        <button onclick="mostrarGrafica('radar')">🔷 Radar</button>
+    </div>
+
+    <div style="max-width:740px;">
+        <canvas id="grafica"></canvas>
+    </div>
+</main>
+
+<script>
+/* ── PARTICLES ── */
+(function(){
+  const c=document.getElementById('particles');
+  const ctx=c.getContext('2d');
+  let W,H,particles=[];
+  function resize(){ W=c.width=c.offsetWidth; H=c.height=c.offsetHeight; }
+  window.addEventListener('resize',resize); resize();
+  for(let i=0;i<60;i++) particles.push({
+    x:Math.random()*W, y:Math.random()*H,
+    r:Math.random()*1.6+.3,
+    vx:(Math.random()-.5)*.4, vy:-(Math.random()*.5+.2),
+    alpha:Math.random()*.6+.2,
+    color:Math.random()>.5?'255,60,60':'255,200,0'
+  });
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(const p of particles){
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${p.color},${p.alpha})`;
+      ctx.fill();
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.y<-4){ p.y=H+4; p.x=Math.random()*W; }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── TYPED TEXT ── */
+const phrases=['Wiki No Oficial del Universo God Eater','Compendio de Aragami y God Arc','Datos, Armas y Combatientes'];
+let pi=0,ci=0,deleting=false;
+function typeLoop(){
+  const el=document.getElementById('typed');
+  const phrase=phrases[pi];
+  if(!deleting){ el.textContent=phrase.slice(0,++ci); if(ci===phrase.length){ deleting=true; setTimeout(typeLoop,2000); return; } }
+  else { el.textContent=phrase.slice(0,--ci); if(ci===0){ deleting=false; pi=(pi+1)%phrases.length; } }
+  setTimeout(typeLoop,deleting?40:80);
+}
+typeLoop();
+
+/* ── API ── */
+const API="http://127.0.0.1:8000";
+let grafica=null, tipoGrafica="barras";
+let datosArmas={espada:[],escudo:[],pistola:[],unidad:[]};
+
+const ICONS={'Aragami':'🐉','Espadas':'⚔️','Escudos':'🛡️','Pistolas':'🔫','God Eaters':'👤','Áreas':'🗺️','Materiales':'💎'};
+
+async function cargarResumen(){
+  const secciones=[
+    {nombre:"Aragami",url:"/aragami",link:"Aragami.html"},
+    {nombre:"Espadas",url:"/espada",link:"Armas.html"},
+    {nombre:"Escudos",url:"/escudo",link:"Armas.html"},
+    {nombre:"Pistolas",url:"/pistola",link:"Armas.html"},
+    {nombre:"God Eaters",url:"/godeater",link:"Godeater.html"},
+    {nombre:"Áreas",url:"/area",link:"Areas.html"},
+    {nombre:"Materiales",url:"/material",link:"Materiales.html"},
+  ];
+  let html='<div class="stat-grid">';
+  for(const s of secciones){
+    const res=await fetch(API+s.url);
+    const data=await res.json();
+    const icon=ICONS[s.nombre]||'📌';
+    html+=`<a class="stat-card" href="${s.link}">
+      <div class="stat-icon">${icon}</div>
+      <div class="stat-num">${data.length}</div>
+      <div class="stat-label">${s.nombre}</div>
+    </a>`;
+  }
+  html+='</div>';
+  document.getElementById('resumen').innerHTML=html;
+}
+
+async function cargarSelectores(){
+  const [espadas,escudos,pistolas,unidades]=await Promise.all([
+    fetch(API+"/espada").then(r=>r.json()),
+    fetch(API+"/escudo").then(r=>r.json()),
+    fetch(API+"/pistola").then(r=>r.json()),
+    fetch(API+"/unidad").then(r=>r.json()),
+  ]);
+  datosArmas={espada:espadas,escudo:escudos,pistola:pistolas,unidad:unidades};
+  llenarSelect("sel-espada",espadas);
+  llenarSelect("sel-escudo",escudos);
+  llenarSelect("sel-pistola",pistolas);
+  llenarSelect("sel-unidad",unidades);
+}
+
+function llenarSelect(id,lista){
+  const sel=document.getElementById(id);
+  for(const item of lista){
+    const opt=document.createElement('option');
+    opt.value=item.id;
+    opt.textContent=`${item.nombre} (${item.tipo})`;
+    sel.appendChild(opt);
+  }
+}
+
+function getArmaSeleccionada(tipo,id){ return datosArmas[tipo].find(a=>a.id==id); }
+
+function actualizarGrafica(){
+  const partes=[];
+  ['espada','escudo','pistola','unidad'].forEach((t,i)=>{
+    const id=document.getElementById('sel-'+t.replace('unidad','unidad')).value;
+    if(id) partes.push({label:['Espada','Escudo','Pistola','Unidad'][i],data:getArmaSeleccionada(t,id)});
+  });
+  if(!partes.length){ if(grafica){grafica.destroy();grafica=null;} return; }
+  const labels=["Sunder","Crush","Pierce","Val. Elemento"];
+  const pal=['rgba(220,20,60,.8)','rgba(0,229,255,.8)','rgba(255,215,0,.8)','rgba(160,80,255,.8)'];
+  const datasets=partes.map((p,i)=>({
+    label:`${p.label}: ${p.data?.nombre||""}`,
+    data:[p.data?.sunder||0,p.data?.crush||0,p.data?.pierce||0,p.data?.valor_elemento||0],
+    backgroundColor:pal[i],
+    borderColor:pal[i].replace('.8','1'),
+    borderWidth:2,
+  }));
+  if(grafica) grafica.destroy();
+  const ctx=document.getElementById('grafica').getContext('2d');
+  grafica=new Chart(ctx,{
+    type:tipoGrafica==="barras"?"bar":"radar",
+    data:{labels,datasets},
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{position:'top',labels:{color:'#d0d0e0',font:{family:'Orbitron',size:11}}},
+        title:{display:true,text:tipoGrafica==="barras"?"Estadísticas del God Arc":"Comparativa del God Arc",color:'#ffd700',font:{family:'Orbitron',size:14}}
+      },
+      scales:tipoGrafica==="barras"?{
+        x:{ticks:{color:'#9090b0'},grid:{color:'rgba(220,20,60,.1)'}},
+        y:{beginAtZero:true,ticks:{color:'#9090b0'},grid:{color:'rgba(220,20,60,.1)'}}
+      }:{r:{ticks:{color:'#9090b0',backdropColor:'transparent'},grid:{color:'rgba(220,20,60,.2)'},pointLabels:{color:'#ffd700',font:{family:'Orbitron',size:11}}}}
+    }
+  });
+}
+
+function mostrarGrafica(tipo){ tipoGrafica=tipo; actualizarGrafica(); }
+
+cargarResumen();
+cargarSelectores();
+</script>
+</body>
+</html>
