@@ -7,9 +7,6 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-      /* ── PARTICLE CANVAS ── */
-      #particles { position:absolute; inset:0; z-index:1; pointer-events:none; }
-
       /* ── TYPED SUBTITLE ── */
       .hero-sub .cursor { display:inline-block; width:2px; height:1em; background:var(--gold); margin-left:2px; animation:blink .7s step-end infinite; }
       @keyframes blink { 50%{ opacity:0; } }
@@ -85,7 +82,6 @@
 </nav>
 
 <div class="hero">
-    <canvas id="particles"></canvas>
     <div class="logo-decorativo"></div>
     <div style="position:relative;z-index:2;">
         <h1>GOD EATER WIKI</h1>
@@ -137,35 +133,6 @@
 </main>
 
 <script>
-/* ── PARTICLES ── */
-(function(){
-  const c=document.getElementById('particles');
-  const ctx=c.getContext('2d');
-  let W,H,particles=[];
-  function resize(){ W=c.width=c.offsetWidth; H=c.height=c.offsetHeight; }
-  window.addEventListener('resize',resize); resize();
-  for(let i=0;i<60;i++) particles.push({
-    x:Math.random()*W, y:Math.random()*H,
-    r:Math.random()*1.6+.3,
-    vx:(Math.random()-.5)*.4, vy:-(Math.random()*.5+.2),
-    alpha:Math.random()*.6+.2,
-    color:Math.random()>.5?'255,60,60':'255,200,0'
-  });
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-    for(const p of particles){
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(${p.color},${p.alpha})`;
-      ctx.fill();
-      p.x+=p.vx; p.y+=p.vy;
-      if(p.y<-4){ p.y=H+4; p.x=Math.random()*W; }
-    }
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
-
 /* ── TYPED TEXT ── */
 const phrases=['Wiki No Oficial del Universo God Eater','Compendio de Aragami y God Arc','Datos, Armas y Combatientes'];
 let pi=0,ci=0,deleting=false;

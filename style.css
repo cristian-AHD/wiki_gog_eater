@@ -140,7 +140,7 @@ nav a:hover::after { width: 80%; }
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(5,5,8,0.92) 100%),
+    linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(5,5,8,0.55) 100%),
     url('https://images3.alphacoders.com/746/thumb-1920-746001.jpg') center/cover no-repeat;
   background-attachment: fixed;
   z-index: 0;
@@ -158,8 +158,8 @@ nav a:hover::after { width: 80%; }
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 60% 40% at 50% 80%, rgba(220,20,60,0.25) 0%, transparent 70%),
-    radial-gradient(ellipse 40% 30% at 20% 50%, rgba(255,69,0,0.15) 0%, transparent 60%);
+    radial-gradient(ellipse 60% 40% at 50% 80%, rgba(220,20,60,0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 30% at 20% 50%, rgba(255,69,0,0.07) 0%, transparent 60%);
   z-index: 1;
   animation: aurapulse 4s ease-in-out infinite;
 }
