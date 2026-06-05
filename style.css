@@ -158,36 +158,37 @@ nav a:hover::after { width: 80%; }
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 60% 40% at 50% 80%, rgba(220,20,60,0.12) 0%, transparent 70%),
-    radial-gradient(ellipse 40% 30% at 20% 50%, rgba(255,69,0,0.07) 0%, transparent 60%);
+    radial-gradient(ellipse 90% 35% at 50% 100%, rgba(220,20,60,0.55) 0%, rgba(139,0,0,0.25) 40%, transparent 70%),
+    radial-gradient(ellipse 60% 20% at 30% 100%, rgba(255,69,0,0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 15% at 70% 100%, rgba(180,0,0,0.3) 0%, transparent 55%);
   z-index: 1;
-  animation: aurapulse 4s ease-in-out infinite;
+  animation: smokerise 5s ease-in-out infinite;
 }
 
-@keyframes aurapulse {
-  0%,100% { opacity:.7; }
-  50%      { opacity:1; }
+@keyframes smokerise {
+  0%,100% { opacity:.75; transform: scaleY(1); }
+  50%      { opacity:1;   transform: scaleY(1.06); }
 }
 
 .hero > * { position: relative; z-index: 2; }
 
 .logo-decorativo {
   position: absolute;
-  width: 280px;
-  height: 280px;
-  right: 5%;
+  width: 320px;
+  height: 320px;
+  left: 5%;
   top: 50%;
   transform: translateY(-50%);
   background: url('https://w7.pngwing.com/pngs/225/465/png-transparent-gods-eater-burst-god-eater-2-logo-ace-combat-infinity-t-shirt-axe-logo-leaf-flower-fictional-character.png') center/contain no-repeat;
-  opacity: 0.12;
-  z-index: 1;
+  opacity: 0.15;
+  z-index: 2;
   animation: logoFloat 6s ease-in-out infinite;
-  filter: drop-shadow(0 0 20px var(--crimson));
+  filter: drop-shadow(0 0 24px var(--crimson)) drop-shadow(0 0 8px rgba(255,100,0,0.6));
 }
 
 @keyframes logoFloat {
   0%,100% { transform: translateY(-50%) rotate(-3deg); }
-  50%      { transform: translateY(calc(-50% - 12px)) rotate(3deg); }
+  50%      { transform: translateY(calc(-50% - 14px)) rotate(3deg); }
 }
 
 .hero h1 {
