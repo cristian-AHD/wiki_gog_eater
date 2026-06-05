@@ -3,198 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aragami - God Eater Wiki</title>
-        <link rel="stylesheet" href="style.css">
+    <title>Aragami — God Eater Wiki</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+      .page-header {
+        background: linear-gradient(180deg, rgba(139,0,0,0.18) 0%, transparent 100%);
+        border-bottom: 1px solid var(--border);
+        padding: 40px 24px 32px;
+        margin-bottom: 0;
+        position: relative;
+        z-index: 1;
+      }
+      .search-bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 24px 0 20px;
+        max-width: 500px;
+      }
+      .search-bar input { margin: 0; border-left: 3px solid var(--crimson); }
+      .search-bar span { color: var(--crimson); font-size: 1.3em; }
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      /* grid cards mode */
+      .aragami-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 16px;
+        margin-top: 4px;
+      }
+      .aragami-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all .3s;
+        cursor: pointer;
+        animation: cardIn .4s ease-out both;
+      }
+      .aragami-card:hover {
+        transform: translateY(-6px);
+        border-color: var(--crimson);
+        box-shadow: 0 8px 30px rgba(220,20,60,.25);
+      }
+      .aragami-card-top {
+        height: 4px;
+        background: linear-gradient(90deg, var(--crimson), var(--gold));
+      }
+      .aragami-card-body { padding: 18px; }
+      .aragami-card-name {
+        font-family: 'Cinzel Decorative', serif;
+        font-size: .95em;
+        color: var(--gold);
+        margin-bottom: 6px;
+      }
+      .aragami-card-tipo {
+        font-family: 'Orbitron', monospace;
+        font-size: .7em;
+        color: var(--crimson);
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+      .aragami-card-deb {
+        font-size: .82em;
+        color: #8080a0;
+      }
+      .deb-tag {
+        display: inline-block;
+        background: rgba(220,20,60,.15);
+        border: 1px solid rgba(220,20,60,.3);
+        border-radius: 3px;
+        padding: 2px 8px;
+        margin: 2px;
+        font-size: .78em;
+        color: #d0a0a0;
+      }
+      @keyframes cardIn {
+        from { opacity:0; transform: scale(.96) translateY(8px); }
+        to   { opacity:1; transform: scale(1) translateY(0); }
+      }
+
+      /* toggle view */
+      .view-toggle { display:flex; gap:6px; }
+      .view-toggle button { padding:8px 14px; font-size:.7em; }
+      .view-toggle button.active { background:linear-gradient(135deg,var(--crimson),var(--blood)); border-color:var(--crimson); }
+    </style>
 </head>
 <body>
-
 <nav>
-    <a href="index.html">Inicio</a> |
-    <a href="aragami.html">Aragami</a> |
-    <a href="armas.html">Armas</a> |
-    <a href="godeater.html">God Eaters</a> |
-    <a href="areas.html">Áreas</a> |
-    <a href="materiales.html">Materiales</a>
+    <a href="index.html">Inicio</a>
+    <a href="Aragami.html">Aragami</a>
+    <a href="Armas.html">Armas</a>
+    <a href="Godeater.html">God Eaters</a>
+    <a href="Areas.html">Áreas</a>
+    <a href="Materiales.html">Materiales</a>
 </nav>
 
-<h1>Aragami</h1>
+<div class="page-header">
+    <h1>🐉 Aragami</h1>
+    <p>Criaturas divinas que devoran la civilización. Conoce sus debilidades.</p>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+        <div class="search-bar">
+            <span>🔍</span>
+            <input type="text" id="buscador" placeholder="Buscar aragami por nombre o tipo...">
+        </div>
+        <div class="view-toggle">
+            <button id="btn-grid" class="active" onclick="setView('grid')">▦ Cards</button>
+            <button id="btn-table" onclick="setView('table')">☰ Tabla</button>
+        </div>
+    </div>
+</div>
 
-<input type="text" id="buscador" placeholder="Buscar aragami..." oninput="filtrar()">
-
+<main>
 <div id="lista">Cargando...</div>
 
 <div id="detalle" style="display:none;">
     <button onclick="cerrarDetalle()">← Volver a la lista</button>
+    <br><br>
     <div id="detalle-contenido"></div>
 </div>
 
 <hr>
 
-<!-- Botón para mostrar login -->
 <div id="login-box">
-    <button onclick="mostrarLogin()">+ Agregar Aragami (Admin)</button>
+    <button onclick="mostrarLogin()">⊕ Agregar Aragami (Admin)</button>
 </div>
 
-<!-- Login admin -->
-<div id="login-form" style="display:none;padding:16px;border:1px solid #ccc;margin-top:12px;">
-    <h3>Acceso Admin</h3>
-    <label>Usuario: <input type="text" id="admin-user" placeholder="admin"></label><br><br>
-    <label>Contraseña: <input type="password" id="admin-pass"></label><br><br>
-    <button onclick="verificarLogin()">Entrar</button>
-    <button onclick="cancelarLogin()">Cancelar</button>
-    <p id="login-error" style="color:red;display:none">Usuario o contraseña incorrectos</p>
+<div id="login-form" style="display:none;">
+    <h3>🔐 Acceso Admin</h3>
+    <label>Usuario <input type="text" id="admin-user" placeholder="admin"></label>
+    <label>Contraseña <input type="password" id="admin-pass"></label>
+    <div style="display:flex;gap:8px;margin-top:14px;">
+        <button onclick="verificarLogin()">Entrar</button>
+        <button onclick="cancelarLogin()">Cancelar</button>
+    </div>
+    <p id="login-error" style="color:red;display:none;margin-top:10px;">Usuario o contraseña incorrectos</p>
 </div>
 
-<!-- Formulario crear aragami -->
-<div id="form-aragami" style="display:none;padding:16px;border:1px solid #ccc;margin-top:12px;">
-    <h3>Crear Aragami</h3>
-    <label>Nombre: <input type="text" id="ar-nombre" placeholder="Ej: Ogretail"></label><br><br>
-    <label>Tipo: <input type="text" id="ar-tipo" placeholder="Ej: Depredador"></label><br><br>
-    <label>Debilidades (separadas por coma): <input type="text" id="ar-debilidades" placeholder="Ej: Fuego, Rayo"></label><br><br>
-    <label>Descripción: <textarea id="ar-descripcion" rows="3" placeholder="Descripción del aragami..."></textarea></label><br><br>
-    <label>URL Imagen: <input type="text" id="ar-imagen" placeholder="https://..."></label><br><br>
-    <button onclick="crearAragami()">Crear</button>
-    <button onclick="cerrarFormulario()">Cancelar</button>
-    <p id="ar-msg"></p>
+<div id="form-aragami" style="display:none;">
+    <h3>⊕ Crear Aragami</h3>
+    <label>Nombre <input type="text" id="ar-nombre" placeholder="Ej: Ogretail"></label>
+    <label>Tipo <input type="text" id="ar-tipo" placeholder="Ej: Depredador"></label>
+    <label>Debilidades (separadas por coma) <input type="text" id="ar-debilidades" placeholder="Ej: Fuego, Rayo"></label>
+    <label>Descripción <textarea id="ar-descripcion" rows="3" placeholder="Descripción del aragami..."></textarea></label>
+    <label>URL Imagen <input type="text" id="ar-imagen" placeholder="https://..."></label>
+    <div style="display:flex;gap:8px;margin-top:14px;">
+        <button onclick="crearAragami()">✔ Crear</button>
+        <button onclick="cerrarFormulario()">✕ Cancelar</button>
+    </div>
+    <p id="ar-msg" style="margin-top:10px;"></p>
 </div>
+</main>
 
 <script>
-const API = "http://127.0.0.1:8000";
-const ADMIN_USER = "admin";
-const ADMIN_PASS = "godeater2026";
-let todos = [];
+const API="http://127.0.0.1:8000";
+const ADMIN_USER="admin", ADMIN_PASS="godeater2026";
+let todos=[], viewMode='grid';
 
-async function cargar() {
-    const res = await fetch(API + "/aragami");
-    todos = await res.json();
-    mostrar(todos);
+function setView(mode){
+  viewMode=mode;
+  document.getElementById('btn-grid').classList.toggle('active',mode==='grid');
+  document.getElementById('btn-table').classList.toggle('active',mode==='table');
+  mostrar(todos);
 }
 
-function mostrar(lista) {
-    if (lista.length === 0) {
-        document.getElementById("lista").innerHTML = "<p>No se encontraron aragami.</p>";
-        return;
-    }
-    let html = "<table border='1'><tr><th>ID</th><th>Nombre</th><th>Tipo</th><th>Debilidades</th><th>Ver</th></tr>";
-    for (const a of lista) {
-        const debs = Array.isArray(a.debilidades) ? a.debilidades.join(", ") : a.debilidades;
-        html += `<tr>
-            <td>${a.id}</td>
-            <td>${a.nombre}</td>
-            <td>${a.tipo}</td>
-            <td>${debs}</td>
-            <td><button onclick="verDetalle(${a.id})">Ver</button></td>
-        </tr>`;
-    }
-    html += "</table>";
-    document.getElementById("lista").innerHTML = html;
+async function cargar(){
+  const res=await fetch(API+"/aragami");
+  todos=await res.json();
+  mostrar(todos);
 }
 
-function filtrar() {
-    const texto = document.getElementById("buscador").value.toLowerCase();
-    const filtrados = todos.filter(a => a.nombre.toLowerCase().includes(texto) || a.tipo.toLowerCase().includes(texto));
-    mostrar(filtrados);
-}
-
-async function verDetalle(id) {
-    const res = await fetch(API + "/aragami/" + id);
-    const a = await res.json();
-    const debs = Array.isArray(a.debilidades) ? a.debilidades.join(", ") : a.debilidades;
-
-    let html = `<h2>${a.nombre}</h2>`;
-    if (a.imagen) html += `<img src="${a.imagen}" alt="${a.nombre}" width="300"><br>`;
-    html += `<p><strong>Tipo:</strong> ${a.tipo}</p>`;
-    html += `<p><strong>Debilidades:</strong> ${debs}</p>`;
-    if (a.descripcion) html += `<p><strong>Descripción:</strong> ${a.descripcion}</p>`;
-
-    document.getElementById("lista").style.display = "none";
-    document.getElementById("buscador").style.display = "none";
-    document.getElementById("detalle-contenido").innerHTML = html;
-    document.getElementById("detalle").style.display = "block";
-}
-
-function cerrarDetalle() {
-    document.getElementById("lista").style.display = "block";
-    document.getElementById("buscador").style.display = "block";
-    document.getElementById("detalle").style.display = "none";
-}
-
-function mostrarLogin() {
-    document.getElementById("login-box").style.display = "none";
-    document.getElementById("login-form").style.display = "block";
-}
-
-function cancelarLogin() {
-    document.getElementById("login-form").style.display = "none";
-    document.getElementById("login-box").style.display = "block";
-    document.getElementById("login-error").style.display = "none";
-}
-
-function verificarLogin() {
-    const user = document.getElementById("admin-user").value;
-    const pass = document.getElementById("admin-pass").value;
-    if (user === ADMIN_USER && pass === ADMIN_PASS) {
-        document.getElementById("login-form").style.display = "none";
-        document.getElementById("form-aragami").style.display = "block";
-    } else {
-        document.getElementById("login-error").style.display = "block";
-    }
-}
-
-function cerrarFormulario() {
-    document.getElementById("form-aragami").style.display = "none";
-    document.getElementById("login-box").style.display = "block";
-}
-
-async function crearAragami() {
-    const nombre = document.getElementById("ar-nombre").value.trim();
-    const tipo = document.getElementById("ar-tipo").value.trim();
-    if (!nombre || !tipo) {
-        document.getElementById("ar-msg").style.color = "red";
-        document.getElementById("ar-msg").textContent = "Nombre y tipo son obligatorios";
-        return;
-    }
-    const debilidades = document.getElementById("ar-debilidades").value
-        .split(",").map(d => d.trim()).filter(d => d);
-
-    const res = await fetch(API + "/aragami", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            nombre,
-            tipo,
-            debilidades,
-            descripcion: document.getElementById("ar-descripcion").value || null,
-        })
+function mostrar(lista){
+  if(!lista.length){ document.getElementById('lista').innerHTML='<p>No se encontraron aragami.</p>'; return; }
+  if(viewMode==='grid'){
+    let html='<div class="aragami-grid">';
+    lista.forEach((a,i)=>{
+      const debs=Array.isArray(a.debilidades)?a.debilidades:[];
+      const tags=debs.map(d=>`<span class="deb-tag">${d}</span>`).join('');
+      html+=`<div class="aragami-card" onclick="verDetalle(${a.id})" style="animation-delay:${i*.04}s">
+        <div class="aragami-card-top"></div>
+        <div class="aragami-card-body">
+          <div class="aragami-card-name">${a.nombre}</div>
+          <div class="aragami-card-tipo">${a.tipo}</div>
+          <div class="aragami-card-deb">${tags||'<span class="deb-tag">Sin datos</span>'}</div>
+        </div>
+      </div>`;
     });
-    const data = await res.json();
-    if (res.ok) {
-        const imagen = document.getElementById("ar-imagen").value.trim();
-        if (imagen) {
-            await fetch(`${API}/imagen/aragami/${data.id}`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ url: imagen })
-            });
-        }
-        document.getElementById("ar-msg").style.color = "green";
-        document.getElementById("ar-msg").textContent = "Aragami creado correctamente";
-        document.getElementById("ar-nombre").value = "";
-        document.getElementById("ar-tipo").value = "";
-        document.getElementById("ar-debilidades").value = "";
-        document.getElementById("ar-descripcion").value = "";
-        document.getElementById("ar-imagen").value = "";
-        cargar();
-    } else {
-        document.getElementById("ar-msg").style.color = "red";
-        document.getElementById("ar-msg").textContent = "Error al crear el aragami";
+    html+='</div>';
+    document.getElementById('lista').innerHTML=html;
+  } else {
+    let html="<table><tr><th>#</th><th>Nombre</th><th>Tipo</th><th>Debilidades</th><th></th></tr>";
+    for(const a of lista){
+      const debs=Array.isArray(a.debilidades)?a.debilidades.join(', '):a.debilidades;
+      html+=`<tr><td>${a.id}</td><td>${a.nombre}</td><td>${a.tipo}</td><td>${debs}</td><td><button onclick="verDetalle(${a.id})">Ver ›</button></td></tr>`;
     }
+    html+='</table>';
+    document.getElementById('lista').innerHTML=html;
+  }
+}
+
+document.getElementById('buscador').addEventListener('input',function(){
+  const t=this.value.toLowerCase();
+  mostrar(todos.filter(a=>a.nombre.toLowerCase().includes(t)||a.tipo.toLowerCase().includes(t)));
+});
+
+async function verDetalle(id){
+  const res=await fetch(API+"/aragami/"+id);
+  const a=await res.json();
+  const debs=Array.isArray(a.debilidades)?a.debilidades.join(', '):a.debilidades;
+  let html=`<div id="detalle-contenido"><h2>${a.nombre}</h2>`;
+  if(a.imagen) html+=`<img src="${a.imagen}" alt="${a.nombre}" style="max-width:320px;"><br>`;
+  html+=`<p><strong>Tipo:</strong> ${a.tipo}</p>`;
+  html+=`<p><strong>Debilidades:</strong> ${debs}</p>`;
+  if(a.descripcion) html+=`<p><strong>Descripción:</strong> ${a.descripcion}</p>`;
+  html+='</div>';
+  document.getElementById('lista').style.display='none';
+  document.getElementById('buscador').closest('.search-bar').style.display='none';
+  document.getElementById('detalle-contenido').outerHTML=html;
+  document.getElementById('detalle').style.display='block';
+}
+
+function cerrarDetalle(){
+  document.getElementById('lista').style.display='';
+  document.querySelector('.search-bar').style.display='flex';
+  document.getElementById('detalle').style.display='none';
+}
+
+function mostrarLogin(){ document.getElementById('login-box').style.display='none'; document.getElementById('login-form').style.display='block'; }
+function cancelarLogin(){ document.getElementById('login-form').style.display='none'; document.getElementById('login-box').style.display='block'; document.getElementById('login-error').style.display='none'; }
+
+function verificarLogin(){
+  if(document.getElementById('admin-user').value===ADMIN_USER && document.getElementById('admin-pass').value===ADMIN_PASS){
+    document.getElementById('login-form').style.display='none'; document.getElementById('form-aragami').style.display='block';
+  } else { document.getElementById('login-error').style.display='block'; }
+}
+
+function cerrarFormulario(){ document.getElementById('form-aragami').style.display='none'; document.getElementById('login-box').style.display='block'; }
+
+async function crearAragami(){
+  const nombre=document.getElementById('ar-nombre').value.trim();
+  const tipo=document.getElementById('ar-tipo').value.trim();
+  const msg=document.getElementById('ar-msg');
+  if(!nombre||!tipo){ msg.style.color='red'; msg.textContent='Nombre y tipo son obligatorios'; return; }
+  const debilidades=document.getElementById('ar-debilidades').value.split(',').map(d=>d.trim()).filter(d=>d);
+  const res=await fetch(API+"/aragami",{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({nombre,tipo,debilidades,descripcion:document.getElementById('ar-descripcion').value||null})});
+  const data=await res.json();
+  if(res.ok){
+    const imagen=document.getElementById('ar-imagen').value.trim();
+    if(imagen) await fetch(`${API}/imagen/aragami/${data.id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:imagen})});
+    msg.style.color='green'; msg.textContent='✔ Aragami creado correctamente';
+    ['ar-nombre','ar-tipo','ar-debilidades','ar-descripcion','ar-imagen'].forEach(id=>document.getElementById(id).value='');
+    cargar();
+  } else { msg.style.color='red'; msg.textContent='✕ Error al crear el aragami'; }
 }
 
 cargar();
 </script>
-
 </body>
 </html>

@@ -3,124 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Materiales - God Eater Wiki</title>
-        <link rel="stylesheet" href="style.css">
+    <title>Materiales — God Eater Wiki</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+      .filter-row { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:20px; }
+      .filter-row label { display:flex; align-items:center; gap:8px; font-family:'Orbitron',monospace; font-size:.72em; color:#7070a0; white-space:nowrap; }
+      .filter-row select { width:auto; margin:0; }
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      .rango-badge {
+        display:inline-block;
+        padding:2px 10px;
+        border-radius:3px;
+        font-family:'Orbitron',monospace;
+        font-size:.65em;
+        font-weight:700;
+        letter-spacing:.08em;
+      }
+      .rango-1-3 { background:rgba(74,222,128,.15); border:1px solid rgba(74,222,128,.3); color:#4ade80; }
+      .rango-4-6 { background:rgba(255,215,0,.1); border:1px solid rgba(255,215,0,.3); color:#ffd700; }
+      .rango-7-10 { background:rgba(220,20,60,.15); border:1px solid rgba(220,20,60,.3); color:#ff6b6b; }
+    </style>
 </head>
 <body>
-
 <nav>
-    <a href="index.html">Inicio</a> |
-    <a href="aragami.html">Aragami</a> |
-    <a href="armas.html">Armas</a> |
-    <a href="godeater.html">God Eaters</a> |
-    <a href="areas.html">Áreas</a> |
-    <a href="materiales.html">Materiales</a>
+    <a href="index.html">Inicio</a>
+    <a href="Aragami.html">Aragami</a>
+    <a href="Armas.html">Armas</a>
+    <a href="Godeater.html">God Eaters</a>
+    <a href="Areas.html">Áreas</a>
+    <a href="Materiales.html">Materiales</a>
 </nav>
 
-<h1>Materiales</h1>
-
-<input type="text" id="buscador" placeholder="Buscar material..." oninput="filtrar()">
-
-<label>Filtrar por origen:
-    <select onchange="filtrarOrigen(this.value)">
-        <option value="">Todos</option>
-        <option value="Aragami">Aragami</option>
-        <option value="Objetivo Perdido">Objetivo Perdido</option>
-    </select>
-</label>
-
-<label>Filtrar por dificultad:
-    <select onchange="filtrarRango(this.value)">
-        <option value="">Todas</option>
-        <option value="1-3">Fácil (1-3)</option>
-        <option value="4-6">Medio (4-6)</option>
-        <option value="7-10">Difícil (7-10)</option>
-    </select>
-</label>
-
-<div id="lista">Cargando...</div>
-
-<div id="detalle" style="display:none;">
-    <button onclick="cerrarDetalle()">← Volver</button>
-    <div id="detalle-contenido"></div>
+<div class="page-header" style="background:linear-gradient(180deg,rgba(80,40,0,.2) 0%,transparent 100%);border-bottom:1px solid var(--border);padding:40px 24px 28px;position:relative;z-index:1;">
+    <h1>💎 Materiales</h1>
+    <p>Componentes obtenidos en misiones, usados para forjar y mejorar el God Arc.</p>
 </div>
 
+<main>
+    <div style="max-width:480px;margin-bottom:12px;">
+        <input type="text" id="buscador" placeholder="🔍  Buscar material..." oninput="filtrar()">
+    </div>
+    <div class="filter-row">
+        <label>Origen <select id="filtro-origen" onchange="filtrar()">
+            <option value="">Todos</option>
+            <option value="Aragami">Aragami</option>
+            <option value="Objetivo Perdido">Objetivo Perdido</option>
+        </select></label>
+        <label>Dificultad <select id="filtro-rango" onchange="filtrar()">
+            <option value="">Todas</option>
+            <option value="1-3">Fácil (1-3)</option>
+            <option value="4-6">Medio (4-6)</option>
+            <option value="7-10">Difícil (7-10)</option>
+        </select></label>
+    </div>
+
+    <div id="lista">Cargando...</div>
+
+    <div id="detalle" style="display:none;">
+        <button onclick="cerrarDetalle()">← Volver</button>
+        <br><br>
+        <div id="detalle-contenido"></div>
+    </div>
+</main>
+
 <script>
-const API = "http://127.0.0.1:8000";
-let todos = [];
+const API="http://127.0.0.1:8000";
+let todos=[];
 
-async function cargar() {
-    const res = await fetch(API + "/material");
-    todos = await res.json();
-    mostrar(todos);
+function rangoBadge(r){
+  const cls=r==='1-3'?'rango-1-3':r==='4-6'?'rango-4-6':'rango-7-10';
+  return `<span class="rango-badge ${cls}">${r}</span>`;
 }
 
-function mostrar(lista) {
-    if (lista.length === 0) {
-        document.getElementById("lista").innerHTML = "<p>No se encontraron materiales.</p>";
-        return;
-    }
-    let html = "<table border='1'><tr><th>ID</th><th>Nombre</th><th>Origen</th><th>Rango</th><th>Obtenido de</th><th>Ver</th></tr>";
-    for (const m of lista) {
-        html += `<tr>
-            <td>${m.id}</td>
-            <td>${m.nombre}</td>
-            <td>${m.origen}</td>
-            <td>${m.rango_mision}</td>
-            <td>${m.obtenido_de}</td>
-            <td><button onclick="verDetalle(${m.id})">Ver</button></td>
-        </tr>`;
-    }
-    html += "</table>";
-    document.getElementById("lista").innerHTML = html;
+async function cargar(){
+  const res=await fetch(API+"/material");
+  todos=await res.json();
+  mostrar(todos);
 }
 
-function filtrar() {
-    const texto = document.getElementById("buscador").value.toLowerCase();
-    const filtrados = todos.filter(m =>
-        m.nombre.toLowerCase().includes(texto) ||
-        m.obtenido_de.toLowerCase().includes(texto)
-    );
-    mostrar(filtrados);
+function filtrar(){
+  const t=document.getElementById('buscador').value.toLowerCase();
+  const o=document.getElementById('filtro-origen').value;
+  const r=document.getElementById('filtro-rango').value;
+  mostrar(todos.filter(m=>{
+    const matchText=m.nombre.toLowerCase().includes(t)||m.obtenido_de.toLowerCase().includes(t);
+    const matchOrigen=!o||m.origen===o;
+    const matchRango=!r||m.rango_mision===r;
+    return matchText&&matchOrigen&&matchRango;
+  }));
 }
 
-function filtrarOrigen(origen) {
-    const filtrados = origen ? todos.filter(m => m.origen === origen) : todos;
-    mostrar(filtrados);
+function mostrar(lista){
+  if(!lista.length){ document.getElementById('lista').innerHTML='<p>No se encontraron materiales.</p>'; return; }
+  let html='<table><tr><th>#</th><th>Nombre</th><th>Origen</th><th>Rango</th><th>Obtenido de</th><th></th></tr>';
+  for(const m of lista){
+    html+=`<tr>
+      <td>${m.id}</td>
+      <td style="color:var(--gold);font-weight:700;">💎 ${m.nombre}</td>
+      <td style="color:#a0a0c0;">${m.origen}</td>
+      <td>${rangoBadge(m.rango_mision)}</td>
+      <td style="color:#8080a0;">${m.obtenido_de}</td>
+      <td><button onclick="verDetalle(${m.id})">Ver ›</button></td>
+    </tr>`;
+  }
+  html+='</table>';
+  document.getElementById('lista').innerHTML=html;
 }
 
-function filtrarRango(rango) {
-    const filtrados = rango ? todos.filter(m => m.rango_mision === rango) : todos;
-    mostrar(filtrados);
+async function verDetalle(id){
+  const res=await fetch(API+"/material/"+id);
+  const m=await res.json();
+  let html=`<h2>💎 ${m.nombre}</h2>`;
+  if(m.imagen) html+=`<img src="${m.imagen}" alt="${m.nombre}" style="max-width:220px;"><br>`;
+  html+=`<p><strong>Origen:</strong> ${m.origen}</p>`;
+  html+=`<p><strong>Rango de misión:</strong> ${rangoBadge(m.rango_mision)}</p>`;
+  html+=`<p><strong>Obtenido de:</strong> ${m.obtenido_de}</p>`;
+  if(m.descripcion) html+=`<p><strong>Descripción:</strong> ${m.descripcion}</p>`;
+  document.getElementById('lista').style.display='none';
+  document.getElementById('detalle-contenido').innerHTML=html;
+  document.getElementById('detalle').style.display='block';
 }
 
-async function verDetalle(id) {
-    const res = await fetch(API + "/material/" + id);
-    const m = await res.json();
-
-    let html = `<h2>${m.nombre}</h2>`;
-    if (m.imagen) html += `<img src="${m.imagen}" alt="${m.nombre}" width="200"><br>`;
-    html += `<p><strong>Origen:</strong> ${m.origen}</p>`;
-    html += `<p><strong>Rango de misión:</strong> ${m.rango_mision}</p>`;
-    html += `<p><strong>Obtenido de:</strong> ${m.obtenido_de}</p>`;
-    if (m.descripcion) html += `<p><strong>Descripción:</strong> ${m.descripcion}</p>`;
-
-    document.getElementById("lista").style.display = "none";
-    document.getElementById("buscador").style.display = "none";
-    document.getElementById("detalle-contenido").innerHTML = html;
-    document.getElementById("detalle").style.display = "block";
-}
-
-function cerrarDetalle() {
-    document.getElementById("lista").style.display = "block";
-    document.getElementById("buscador").style.display = "block";
-    document.getElementById("detalle").style.display = "none";
+function cerrarDetalle(){
+  document.getElementById('lista').style.display='';
+  document.getElementById('detalle').style.display='none';
 }
 
 cargar();
 </script>
-
 </body>
 </html>

@@ -3,88 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Áreas - God Eater Wiki</title>
-        <link rel="stylesheet" href="style.css">
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Áreas — God Eater Wiki</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+      .area-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; }
+      .area-card {
+        background:var(--panel);
+        border:1px solid var(--border);
+        border-radius:8px;
+        overflow:hidden;
+        cursor:pointer;
+        transition:all .3s;
+        animation:cardIn .4s ease-out both;
+        position:relative;
+      }
+      .area-card:hover { transform:translateY(-5px); border-color:rgba(0,229,255,.4); box-shadow:0 8px 30px rgba(0,229,255,.12); }
+      .area-card-img {
+        height:120px;
+        background:linear-gradient(135deg,rgba(0,50,80,.8),rgba(0,0,30,.9));
+        display:flex;align-items:center;justify-content:center;
+        font-size:3em;
+        position:relative;
+        overflow:hidden;
+      }
+      .area-card-img img { width:100%;height:100%;object-fit:cover;position:absolute;inset:0; }
+      .area-card-img::after {
+        content:'';
+        position:absolute;inset:0;
+        background:linear-gradient(180deg,transparent 50%,var(--panel) 100%);
+      }
+      .area-card-body { padding:16px; }
+      .area-card-name { font-family:'Cinzel Decorative',serif;font-size:.9em;color:#00e5ff;margin-bottom:4px; }
+      .area-card-num { font-family:'Orbitron',monospace;font-size:.65em;color:#606080; }
+      @keyframes cardIn { from{opacity:0;transform:scale(.96) translateY(8px);} to{opacity:1;transform:scale(1) translateY(0);} }
+    </style>
 </head>
 <body>
-
 <nav>
-    <a href="index.html">Inicio</a> |
-    <a href="aragami.html">Aragami</a> |
-    <a href="armas.html">Armas</a> |
-    <a href="godeater.html">God Eaters</a> |
-    <a href="areas.html">Áreas</a> |
-    <a href="materiales.html">Materiales</a>
+    <a href="index.html">Inicio</a>
+    <a href="Aragami.html">Aragami</a>
+    <a href="Armas.html">Armas</a>
+    <a href="Godeater.html">God Eaters</a>
+    <a href="Areas.html">Áreas</a>
+    <a href="Materiales.html">Materiales</a>
 </nav>
 
-<h1>Áreas</h1>
-
-<input type="text" id="buscador" placeholder="Buscar área..." oninput="filtrar()">
-
-<div id="lista">Cargando...</div>
-
-<div id="detalle" style="display:none;">
-    <button onclick="cerrarDetalle()">← Volver</button>
-    <div id="detalle-contenido"></div>
+<div class="page-header" style="background:linear-gradient(180deg,rgba(0,40,80,.2) 0%,transparent 100%);border-bottom:1px solid var(--border);padding:40px 24px 28px;position:relative;z-index:1;">
+    <h1>🗺 Áreas</h1>
+    <p>Zonas de operación en el mundo post-apocalíptico dominado por Aragami.</p>
 </div>
 
+<main>
+    <div style="max-width:480px;margin-bottom:20px;">
+        <input type="text" id="buscador" placeholder="🔍  Buscar área..." oninput="filtrar()">
+    </div>
+
+    <div id="lista">Cargando...</div>
+
+    <div id="detalle" style="display:none;">
+        <button onclick="cerrarDetalle()">← Volver</button>
+        <br><br>
+        <div id="detalle-contenido"></div>
+    </div>
+</main>
+
 <script>
-const API = "http://127.0.0.1:8000";
-let todos = [];
+const API="http://127.0.0.1:8000";
+let todos=[];
+const AREA_ICONS=['🏚','🌋','🏭','🌊','🏔','🌃','🏜','🌿'];
 
-async function cargar() {
-    const res = await fetch(API + "/area");
-    todos = await res.json();
-    mostrar(todos);
+async function cargar(){
+  const res=await fetch(API+"/area");
+  todos=await res.json();
+  mostrar(todos);
 }
 
-function mostrar(lista) {
-    if (lista.length === 0) {
-        document.getElementById("lista").innerHTML = "<p>No se encontraron áreas.</p>";
-        return;
-    }
-    let html = "<table border='1'><tr><th>ID</th><th>Nombre</th><th>Ver</th></tr>";
-    for (const a of lista) {
-        html += `<tr>
-            <td>${a.id}</td>
-            <td>${a.nombre}</td>
-            <td><button onclick="verDetalle(${a.id})">Ver</button></td>
-        </tr>`;
-    }
-    html += "</table>";
-    document.getElementById("lista").innerHTML = html;
+function mostrar(lista){
+  if(!lista.length){ document.getElementById('lista').innerHTML='<p>No se encontraron áreas.</p>'; return; }
+  let html='<div class="area-grid">';
+  lista.forEach((a,i)=>{
+    const icon=AREA_ICONS[i%AREA_ICONS.length];
+    const imgHtml=a.imagen?`<img src="${a.imagen}" alt="${a.nombre}">`:'';
+    html+=`<div class="area-card" onclick="verDetalle(${a.id})" style="animation-delay:${i*.05}s">
+      <div class="area-card-img">${imgHtml}<span style="position:relative;z-index:1;">${icon}</span></div>
+      <div class="area-card-body">
+        <div class="area-card-name">${a.nombre}</div>
+        <div class="area-card-num">ÁREA #${a.id}</div>
+      </div>
+    </div>`;
+  });
+  html+='</div>';
+  document.getElementById('lista').innerHTML=html;
 }
 
-function filtrar() {
-    const texto = document.getElementById("buscador").value.toLowerCase();
-    const filtrados = todos.filter(a => a.nombre.toLowerCase().includes(texto));
-    mostrar(filtrados);
+function filtrar(){
+  const t=document.getElementById('buscador').value.toLowerCase();
+  mostrar(todos.filter(a=>a.nombre.toLowerCase().includes(t)));
 }
 
-async function verDetalle(id) {
-    const res = await fetch(API + "/area/" + id);
-    const a = await res.json();
-
-    let html = `<h2>${a.nombre}</h2>`;
-    if (a.imagen) html += `<img src="${a.imagen}" alt="${a.nombre}" width="300"><br>`;
-    if (a.descripcion) html += `<p><strong>Descripción:</strong> ${a.descripcion}</p>`;
-
-    document.getElementById("lista").style.display = "none";
-    document.getElementById("buscador").style.display = "none";
-    document.getElementById("detalle-contenido").innerHTML = html;
-    document.getElementById("detalle").style.display = "block";
+async function verDetalle(id){
+  const res=await fetch(API+"/area/"+id);
+  const a=await res.json();
+  let html=`<h2>${a.nombre}</h2>`;
+  if(a.imagen) html+=`<img src="${a.imagen}" alt="${a.nombre}" style="max-width:320px;"><br>`;
+  if(a.descripcion) html+=`<p><strong>Descripción:</strong> ${a.descripcion}</p>`;
+  document.getElementById('lista').style.display='none';
+  document.getElementById('buscador').parentElement.style.display='none';
+  document.getElementById('detalle-contenido').innerHTML=html;
+  document.getElementById('detalle').style.display='block';
 }
 
-function cerrarDetalle() {
-    document.getElementById("lista").style.display = "block";
-    document.getElementById("buscador").style.display = "block";
-    document.getElementById("detalle").style.display = "none";
+function cerrarDetalle(){
+  document.getElementById('lista').style.display='';
+  document.getElementById('buscador').parentElement.style.display='';
+  document.getElementById('detalle').style.display='none';
 }
 
 cargar();
 </script>
-
 </body>
 </html>

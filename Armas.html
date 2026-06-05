@@ -3,115 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Armas - God Eater Wiki</title>
+    <title>Armas — God Eater Wiki</title>
     <link rel="stylesheet" href="style.css">
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      .weapon-tabs { display:flex; gap:8px; flex-wrap:wrap; margin:24px 0 20px; }
+      .wtab {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        color: #8080a0;
+        padding: 10px 22px;
+        border-radius: 4px;
+        font-family: 'Orbitron', monospace;
+        font-size: .72em;
+        letter-spacing: .1em;
+        cursor: pointer;
+        transition: all .25s;
+        position: relative;
+        overflow: hidden;
+      }
+      .wtab::after {
+        content:'';
+        position:absolute;
+        bottom:0;left:0;right:0;
+        height:2px;
+        background:linear-gradient(90deg,var(--crimson),var(--gold));
+        transform:scaleX(0);
+        transition:transform .3s;
+      }
+      .wtab:hover,
+      .wtab.active {
+        color:var(--gold);
+        border-color:var(--gold-dim);
+        background: rgba(255,215,0,.06);
+        box-shadow: 0 0 20px rgba(255,215,0,.1);
+      }
+      .wtab.active::after { transform:scaleX(1); }
+
+      /* stat bars */
+      .stat-bar-wrap { margin: 6px 0; }
+      .stat-bar-label { font-family:'Orbitron',monospace; font-size:.65em; color:#7070a0; margin-bottom:2px; display:flex; justify-content:space-between; }
+      .stat-bar-bg { background:rgba(255,255,255,.06); border-radius:99px; height:6px; overflow:hidden; }
+      .stat-bar-fill { height:100%; border-radius:99px; transition:width .6s ease; }
+    </style>
 </head>
 <body>
-
 <nav>
-    <a href="index.html">Inicio</a> |
-    <a href="aragami.html">Aragami</a> |
-    <a href="armas.html">Armas</a> |
-    <a href="godeater.html">God Eaters</a> |
-    <a href="areas.html">Áreas</a> |
-    <a href="materiales.html">Materiales</a>
+    <a href="index.html">Inicio</a>
+    <a href="Aragami.html">Aragami</a>
+    <a href="Armas.html">Armas</a>
+    <a href="Godeater.html">God Eaters</a>
+    <a href="Areas.html">Áreas</a>
+    <a href="Materiales.html">Materiales</a>
 </nav>
 
-<h1>Armas</h1>
-
-<button onclick="mostrarSeccion('espada')">Espadas</button>
-<button onclick="mostrarSeccion('escudo')">Escudos</button>
-<button onclick="mostrarSeccion('pistola')">Pistolas</button>
-<button onclick="mostrarSeccion('unidad')">Unidades de Control</button>
-
-<input type="text" id="buscador" placeholder="Buscar arma..." oninput="filtrar()">
-
-<h2 id="titulo-seccion">Espadas</h2>
-<div id="lista">Cargando...</div>
-
-<div id="detalle" style="display:none;">
-    <button onclick="cerrarDetalle()">← Volver</button>
-    <div id="detalle-contenido"></div>
+<div class="page-header" style="background:linear-gradient(180deg,rgba(80,0,0,.2) 0%,transparent 100%);border-bottom:1px solid var(--border);padding:40px 24px 28px;position:relative;z-index:1;">
+    <h1>⚔ Armas</h1>
+    <p>Componentes del God Arc: espadas, escudos, pistolas y unidades de control.</p>
 </div>
 
+<main>
+    <div class="weapon-tabs">
+        <button class="wtab active" id="tab-espada"  onclick="mostrarSeccion('espada')">⚔ Espadas</button>
+        <button class="wtab"        id="tab-escudo"  onclick="mostrarSeccion('escudo')">🛡 Escudos</button>
+        <button class="wtab"        id="tab-pistola" onclick="mostrarSeccion('pistola')">🔫 Pistolas</button>
+        <button class="wtab"        id="tab-unidad"  onclick="mostrarSeccion('unidad')">⚙ Unidades</button>
+    </div>
+
+    <div style="max-width:480px;margin-bottom:20px;">
+        <input type="text" id="buscador" placeholder="🔍  Buscar arma..." oninput="filtrar()">
+    </div>
+
+    <h2 id="titulo-seccion" style="margin-top:0;">Espadas</h2>
+    <div id="lista">Cargando...</div>
+
+    <div id="detalle" style="display:none;">
+        <button onclick="cerrarDetalle()">← Volver</button>
+        <br><br>
+        <div id="detalle-contenido"></div>
+    </div>
+</main>
+
 <script>
-const API = "http://127.0.0.1:8000";
-let todos = [];
-let seccionActual = "espada";
+const API="http://127.0.0.1:8000";
+let todos=[], seccionActual='espada';
 
-async function mostrarSeccion(seccion) {
-    seccionActual = seccion;
-    const titulos = { espada: "Espadas", escudo: "Escudos", pistola: "Pistolas", unidad: "Unidades de Control" };
-    document.getElementById("titulo-seccion").textContent = titulos[seccion];
-    document.getElementById("buscador").value = "";
-    const res = await fetch(API + "/" + seccion);
-    todos = await res.json();
-    mostrar(todos);
+const COLORS=['#dc143c','#00e5ff','#ffd700','#a050ff'];
+const MAX_STAT=500;
+
+function statBar(label,val,color){
+  const pct=Math.min(100,Math.round((val||0)/MAX_STAT*100));
+  return `<div class="stat-bar-wrap">
+    <div class="stat-bar-label"><span>${label}</span><span>${val||0}</span></div>
+    <div class="stat-bar-bg"><div class="stat-bar-fill" style="width:${pct}%;background:${color};box-shadow:0 0 8px ${color}66;"></div></div>
+  </div>`;
 }
 
-function mostrar(lista) {
-    if (lista.length === 0) {
-        document.getElementById("lista").innerHTML = "<p>No hay registros.</p>";
-        return;
-    }
-    let html = "<table border='1'><tr><th>ID</th><th>Nombre</th><th>Tipo</th><th>Elemento</th><th>Sunder</th><th>Crush</th><th>Pierce</th><th>Ver</th></tr>";
-    for (const a of lista) {
-        html += `<tr>
-            <td>${a.id}</td>
-            <td>${a.nombre}</td>
-            <td>${a.tipo}</td>
-            <td>${a.elementos && a.elementos.length ? a.elementos.map(e => e.elemento).join(", ") : "-"}</td>
-            <td>${a.sunder ?? "-"}</td>
-            <td>${a.crush ?? "-"}</td>
-            <td>${a.pierce ?? "-"}</td>
-            <td><button onclick="verDetalle(${a.id})">Ver</button></td>
-        </tr>`;
-    }
-    html += "</table>";
-    document.getElementById("lista").innerHTML = html;
+async function mostrarSeccion(sec){
+  seccionActual=sec;
+  document.querySelectorAll('.wtab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+sec).classList.add('active');
+  const titulos={espada:'Espadas',escudo:'Escudos',pistola:'Pistolas',unidad:'Unidades de Control'};
+  document.getElementById('titulo-seccion').textContent=titulos[sec];
+  document.getElementById('buscador').value='';
+  const res=await fetch(API+'/'+sec);
+  todos=await res.json();
+  mostrar(todos);
 }
 
-function filtrar() {
-    const texto = document.getElementById("buscador").value.toLowerCase();
-    const filtrados = todos.filter(a => a.nombre.toLowerCase().includes(texto));
-    mostrar(filtrados);
+function mostrar(lista){
+  if(!lista.length){ document.getElementById('lista').innerHTML='<p>No hay registros.</p>'; return; }
+  let html='<table><tr><th>#</th><th>Nombre</th><th>Tipo</th><th>Elemento</th><th>Sunder</th><th>Crush</th><th>Pierce</th><th></th></tr>';
+  lista.forEach(a=>{
+    html+=`<tr>
+      <td>${a.id}</td>
+      <td style="color:var(--gold);font-weight:700;">${a.nombre}</td>
+      <td style="color:var(--crimson);font-family:'Orbitron',monospace;font-size:.8em;">${a.tipo}</td>
+      <td>${a.elementos&&a.elementos.length?a.elementos.map(e=>e.elemento).join(', '):'-'}</td>
+      <td>${a.sunder??'-'}</td>
+      <td>${a.crush??'-'}</td>
+      <td>${a.pierce??'-'}</td>
+      <td><button onclick="verDetalle(${a.id})">Ver ›</button></td>
+    </tr>`;
+  });
+  html+='</table>';
+  document.getElementById('lista').innerHTML=html;
 }
 
-async function verDetalle(id) {
-    const res = await fetch(API + "/" + seccionActual + "/" + id);
-    const a = await res.json();
-
-    let html = `<h2>${a.nombre}</h2>`;
-    if (a.imagen) html += `<img src="${a.imagen}" alt="${a.nombre}" width="300"><br>`;
-    html += `<p><strong>Tipo:</strong> ${a.tipo}</p>`;
-    if (a.elementos && a.elementos.length > 0) {
-        const elemsStr = a.elementos.map(e => `${e.elemento} (${e.valor} pts)`).join(" | ");
-        html += `<p><strong>Elementos:</strong> ${elemsStr}</p>`;
-    }
-    if (a.sunder !== undefined) {
-        html += `<p><strong>Sunder:</strong> ${a.sunder} | <strong>Crush:</strong> ${a.crush} | <strong>Pierce:</strong> ${a.pierce}</p>`;
-    }
-    if (a.buffs) html += `<p><strong>Buffs:</strong> ${a.buffs}</p>`;
-    if (a.materiales && a.materiales.length > 0) {
-        html += `<p><strong>Materiales:</strong> ${a.materiales.join(", ")}</p>`;
-    }
-
-    document.getElementById("lista").style.display = "none";
-    document.getElementById("buscador").style.display = "none";
-    document.getElementById("detalle-contenido").innerHTML = html;
-    document.getElementById("detalle").style.display = "block";
+function filtrar(){
+  const t=document.getElementById('buscador').value.toLowerCase();
+  mostrar(todos.filter(a=>a.nombre.toLowerCase().includes(t)));
 }
 
-function cerrarDetalle() {
-    document.getElementById("lista").style.display = "block";
-    document.getElementById("buscador").style.display = "block";
-    document.getElementById("detalle").style.display = "none";
+async function verDetalle(id){
+  const res=await fetch(API+'/'+seccionActual+'/'+id);
+  const a=await res.json();
+  let html=`<h2>${a.nombre}</h2>`;
+  if(a.imagen) html+=`<img src="${a.imagen}" alt="${a.nombre}" style="max-width:300px;"><br>`;
+  html+=`<p><strong>Tipo:</strong> <span style="color:var(--crimson)">${a.tipo}</span></p>`;
+  if(a.elementos&&a.elementos.length){
+    html+=`<p><strong>Elementos:</strong> ${a.elementos.map(e=>`${e.elemento} (${e.valor} pts)`).join(' | ')}</p>`;
+  }
+  if(a.sunder!==undefined){
+    html+=`<div style="max-width:400px;margin:20px 0;">
+      ${statBar('Sunder',a.sunder,COLORS[0])}
+      ${statBar('Crush',a.crush,COLORS[1])}
+      ${statBar('Pierce',a.pierce,COLORS[2])}
+    </div>`;
+  }
+  if(a.buffs) html+=`<p><strong>Buffs:</strong> ${a.buffs}</p>`;
+  if(a.materiales&&a.materiales.length) html+=`<p><strong>Materiales:</strong> ${a.materiales.join(', ')}</p>`;
+
+  document.getElementById('lista').style.display='none';
+  document.getElementById('buscador').parentElement.style.display='none';
+  document.getElementById('detalle-contenido').innerHTML=html;
+  document.getElementById('detalle').style.display='block';
 }
 
-mostrarSeccion("espada");
+function cerrarDetalle(){
+  document.getElementById('lista').style.display='';
+  document.getElementById('buscador').parentElement.style.display='';
+  document.getElementById('detalle').style.display='none';
+}
+
+mostrarSeccion('espada');
 </script>
-
 </body>
 </html>
