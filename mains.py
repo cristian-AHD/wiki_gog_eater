@@ -34,7 +34,6 @@ async def root():
 
 app.mount("/", StaticFiles(directory="estilo_god"), name="static")
 
-# ── ARAGAMI ──────────────────────────────────────────────────────────────────
 
 @app.get("/api/aragami")
 def listar_aragami(db: Session = Depends(get_db)):
@@ -94,7 +93,6 @@ def eliminar_aragami(id: int, db: Session = Depends(get_db)):
     return {"mensaje": "Aragami eliminado", "id": id, "nombre": aragami.nombre}
 
 
-# ── ESPADA ──────────────────────────────────────────────────────────────────
 
 @app.get("/api/espada")
 def listar_espadas(db: Session = Depends(get_db)):
@@ -162,8 +160,6 @@ def eliminar_espada(id: int, db: Session = Depends(get_db)):
     return {"mensaje": "Espada eliminada", "id": id, "nombre": espada.nombre}
 
 
-# ── ESCUDO ──────────────────────────────────────────────────────────────────
-
 @app.get("/api/escudo")
 def listar_escudos(db: Session = Depends(get_db)):
     return db.query(Models_db.EscudoDB).all()
@@ -229,8 +225,6 @@ def eliminar_escudo(id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"mensaje": "Escudo eliminado", "id": id, "nombre": escudo.nombre}
 
-
-# ── PISTOLA ──────────────────────────────────────────────────────────────────
 
 @app.get("/api/pistola")
 def listar_pistolas(db: Session = Depends(get_db)):
@@ -298,8 +292,6 @@ def eliminar_pistola(id: int, db: Session = Depends(get_db)):
     return {"mensaje": "Pistola eliminada", "id": id, "nombre": pistola.nombre}
 
 
-# ── UNIDAD DE CONTROL ────────────────────────────────────────────────────────
-
 @app.get("/api/unidad")
 def listar_unidades(db: Session = Depends(get_db)):
     return db.query(Models_db.UnidadControlDB).all()
@@ -350,8 +342,6 @@ def eliminar_unidad(id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"mensaje": "Unidad eliminada", "id": id, "nombre": unidad.nombre}
 
-
-# ── GOD EATER ────────────────────────────────────────────────────────────────
 
 @app.get("/api/godeater")
 def listar_godeater(db: Session = Depends(get_db)):
@@ -416,8 +406,6 @@ def eliminar_godeater(id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"mensaje": "GodEater eliminado", "id": id, "nombre": godeater.nombre}
 
-
-# ── MATERIAL ─────────────────────────────────────────────────────────────────
 
 @app.get("/api/material")
 def listar_materiales(db: Session = Depends(get_db)):
@@ -486,7 +474,6 @@ def eliminar_material(id: int, db: Session = Depends(get_db)):
     return {"mensaje": "Material eliminado", "id": id, "nombre": material.nombre}
 
 
-# ── AREA ─────────────────────────────────────────────────────────────────────
 
 @app.get("/api/area")
 def listar_areas(db: Session = Depends(get_db)):
@@ -535,7 +522,6 @@ def eliminar_area(id: int, db: Session = Depends(get_db)):
     return {"mensaje": "Área eliminada", "id": id, "nombre": area.nombre}
 
 
-# ── IMÁGENES ─────────────────────────────────────────────────────────────────
 
 class ImagenURL(PydanticBase):
     url: str
