@@ -1,4 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel as PydanticBase
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -26,21 +28,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+async def root():
+    return FileResponse("estilo_god/index.html", media_type="text/html")
+
+app.mount("/", StaticFiles(directory="estilo_god"), name="static")
+
 # ── ARAGAMI ──────────────────────────────────────────────────────────────────
 
-@app.get("/aragami")
+@app.get("/api/aragami")
 def listar_aragami(db: Session = Depends(get_db)):
     return db.query(Models_db.AragamiDB).all()
 
 
-@app.get("/aragami/nombre/{nombre}")
+@app.get("/api/aragami/nombre/{nombre}")
 def buscar_aragami_nombre(nombre: str, db: Session = Depends(get_db)):
     return db.query(Models_db.AragamiDB).filter(
         Models_db.AragamiDB.nombre.ilike(f"%{nombre}%")
     ).all()
 
 
-@app.get("/aragami/{id}")
+@app.get("/api/aragami/{id}")
 def buscar_aragami(id: int, db: Session = Depends(get_db)):
     aragami = db.query(Models_db.AragamiDB).filter(Models_db.AragamiDB.id == id).first()
     if not aragami:
@@ -48,7 +56,7 @@ def buscar_aragami(id: int, db: Session = Depends(get_db)):
     return aragami
 
 
-@app.post("/aragami")
+@app.post("/api/aragami")
 def crear_aragami(data: AragamiCreate, db: Session = Depends(get_db)):
     nuevo = Models_db.AragamiDB(
         nombre=data.nombre,
@@ -62,7 +70,7 @@ def crear_aragami(data: AragamiCreate, db: Session = Depends(get_db)):
     return nuevo
 
 
-@app.put("/aragami/{id}")
+@app.put("/api/aragami/{id}")
 def actualizar_aragami(id: int, data: AragamiCreate, db: Session = Depends(get_db)):
     aragami = db.query(Models_db.AragamiDB).filter(Models_db.AragamiDB.id == id).first()
     if not aragami:
@@ -76,7 +84,7 @@ def actualizar_aragami(id: int, data: AragamiCreate, db: Session = Depends(get_d
     return aragami
 
 
-@app.delete("/aragami/{id}")
+@app.delete("/api/aragami/{id}")
 def eliminar_aragami(id: int, db: Session = Depends(get_db)):
     aragami = db.query(Models_db.AragamiDB).filter(Models_db.AragamiDB.id == id).first()
     if not aragami:
@@ -88,19 +96,19 @@ def eliminar_aragami(id: int, db: Session = Depends(get_db)):
 
 # ── ESPADA ──────────────────────────────────────────────────────────────────
 
-@app.get("/espada")
+@app.get("/api/espada")
 def listar_espadas(db: Session = Depends(get_db)):
     return db.query(Models_db.EspadaDB).all()
 
 
-@app.get("/espada/tipo/{tipo}")
+@app.get("/api/espada/tipo/{tipo}")
 def filtrar_espada_tipo(tipo: str, db: Session = Depends(get_db)):
     return db.query(Models_db.EspadaDB).filter(
         Models_db.EspadaDB.tipo.ilike(tipo)
     ).all()
 
 
-@app.get("/espada/{id}")
+@app.get("/api/espada/{id}")
 def buscar_espada(id: int, db: Session = Depends(get_db)):
     espada = db.query(Models_db.EspadaDB).filter(Models_db.EspadaDB.id == id).first()
     if not espada:
@@ -108,7 +116,7 @@ def buscar_espada(id: int, db: Session = Depends(get_db)):
     return espada
 
 
-@app.post("/espada")
+@app.post("/api/espada")
 def crear_espada(data: EspadaCreate, db: Session = Depends(get_db)):
     nuevo = Models_db.EspadaDB(
         nombre=data.nombre,
@@ -126,7 +134,7 @@ def crear_espada(data: EspadaCreate, db: Session = Depends(get_db)):
     return nuevo
 
 
-@app.put("/espada/{id}")
+@app.put("/api/espada/{id}")
 def actualizar_espada(id: int, data: EspadaCreate, db: Session = Depends(get_db)):
     espada = db.query(Models_db.EspadaDB).filter(Models_db.EspadaDB.id == id).first()
     if not espada:
@@ -144,7 +152,7 @@ def actualizar_espada(id: int, data: EspadaCreate, db: Session = Depends(get_db)
     return espada
 
 
-@app.delete("/espada/{id}")
+@app.delete("/api/espada/{id}")
 def eliminar_espada(id: int, db: Session = Depends(get_db)):
     espada = db.query(Models_db.EspadaDB).filter(Models_db.EspadaDB.id == id).first()
     if not espada:
@@ -156,19 +164,19 @@ def eliminar_espada(id: int, db: Session = Depends(get_db)):
 
 # ── ESCUDO ──────────────────────────────────────────────────────────────────
 
-@app.get("/escudo")
+@app.get("/api/escudo")
 def listar_escudos(db: Session = Depends(get_db)):
     return db.query(Models_db.EscudoDB).all()
 
 
-@app.get("/escudo/tipo/{tipo}")
+@app.get("/api/escudo/tipo/{tipo}")
 def filtrar_escudo_tipo(tipo: str, db: Session = Depends(get_db)):
     return db.query(Models_db.EscudoDB).filter(
         Models_db.EscudoDB.tipo.ilike(tipo)
     ).all()
 
 
-@app.get("/escudo/{id}")
+@app.get("/api/escudo/{id}")
 def buscar_escudo(id: int, db: Session = Depends(get_db)):
     escudo = db.query(Models_db.EscudoDB).filter(Models_db.EscudoDB.id == id).first()
     if not escudo:
@@ -176,7 +184,7 @@ def buscar_escudo(id: int, db: Session = Depends(get_db)):
     return escudo
 
 
-@app.post("/escudo")
+@app.post("/api/escudo")
 def crear_escudo(data: EscudoCreate, db: Session = Depends(get_db)):
     nuevo = Models_db.EscudoDB(
         nombre=data.nombre,
@@ -194,7 +202,7 @@ def crear_escudo(data: EscudoCreate, db: Session = Depends(get_db)):
     return nuevo
 
 
-@app.put("/escudo/{id}")
+@app.put("/api/escudo/{id}")
 def actualizar_escudo(id: int, data: EscudoCreate, db: Session = Depends(get_db)):
     escudo = db.query(Models_db.EscudoDB).filter(Models_db.EscudoDB.id == id).first()
     if not escudo:
@@ -212,7 +220,7 @@ def actualizar_escudo(id: int, data: EscudoCreate, db: Session = Depends(get_db)
     return escudo
 
 
-@app.delete("/escudo/{id}")
+@app.delete("/api/escudo/{id}")
 def eliminar_escudo(id: int, db: Session = Depends(get_db)):
     escudo = db.query(Models_db.EscudoDB).filter(Models_db.EscudoDB.id == id).first()
     if not escudo:
@@ -224,19 +232,19 @@ def eliminar_escudo(id: int, db: Session = Depends(get_db)):
 
 # ── PISTOLA ──────────────────────────────────────────────────────────────────
 
-@app.get("/pistola")
+@app.get("/api/pistola")
 def listar_pistolas(db: Session = Depends(get_db)):
     return db.query(Models_db.PistolDB).all()
 
 
-@app.get("/pistola/tipo/{tipo}")
+@app.get("/api/pistola/tipo/{tipo}")
 def filtrar_pistola_tipo(tipo: str, db: Session = Depends(get_db)):
     return db.query(Models_db.PistolDB).filter(
         Models_db.PistolDB.tipo.ilike(tipo)
     ).all()
 
 
-@app.get("/pistola/{id}")
+@app.get("/api/pistola/{id}")
 def buscar_pistola(id: int, db: Session = Depends(get_db)):
     pistola = db.query(Models_db.PistolDB).filter(Models_db.PistolDB.id == id).first()
     if not pistola:
@@ -244,7 +252,7 @@ def buscar_pistola(id: int, db: Session = Depends(get_db)):
     return pistola
 
 
-@app.post("/pistola")
+@app.post("/api/pistola")
 def crear_pistola(data: PistolaCreate, db: Session = Depends(get_db)):
     nuevo = Models_db.PistolDB(
         nombre=data.nombre,
@@ -262,7 +270,7 @@ def crear_pistola(data: PistolaCreate, db: Session = Depends(get_db)):
     return nuevo
 
 
-@app.put("/pistola/{id}")
+@app.put("/api/pistola/{id}")
 def actualizar_pistola(id: int, data: PistolaCreate, db: Session = Depends(get_db)):
     pistola = db.query(Models_db.PistolDB).filter(Models_db.PistolDB.id == id).first()
     if not pistola:
@@ -280,7 +288,7 @@ def actualizar_pistola(id: int, data: PistolaCreate, db: Session = Depends(get_d
     return pistola
 
 
-@app.delete("/pistola/{id}")
+@app.delete("/api/pistola/{id}")
 def eliminar_pistola(id: int, db: Session = Depends(get_db)):
     pistola = db.query(Models_db.PistolDB).filter(Models_db.PistolDB.id == id).first()
     if not pistola:
@@ -292,12 +300,12 @@ def eliminar_pistola(id: int, db: Session = Depends(get_db)):
 
 # ── UNIDAD DE CONTROL ────────────────────────────────────────────────────────
 
-@app.get("/unidad")
+@app.get("/api/unidad")
 def listar_unidades(db: Session = Depends(get_db)):
     return db.query(Models_db.UnidadControlDB).all()
 
 
-@app.get("/unidad/{id}")
+@app.get("/api/unidad/{id}")
 def buscar_unidad(id: int, db: Session = Depends(get_db)):
     unidad = db.query(Models_db.UnidadControlDB).filter(Models_db.UnidadControlDB.id == id).first()
     if not unidad:
@@ -305,7 +313,7 @@ def buscar_unidad(id: int, db: Session = Depends(get_db)):
     return unidad
 
 
-@app.post("/unidad")
+@app.post("/api/unidad")
 def crear_unidad(data: UnidadControlCreate, db: Session = Depends(get_db)):
     nuevo = Models_db.UnidadControlDB(
         nombre=data.nombre,
@@ -319,7 +327,7 @@ def crear_unidad(data: UnidadControlCreate, db: Session = Depends(get_db)):
     return nuevo
 
 
-@app.put("/unidad/{id}")
+@app.put("/api/unidad/{id}")
 def actualizar_unidad(id: int, data: UnidadControlCreate, db: Session = Depends(get_db)):
     unidad = db.query(Models_db.UnidadControlDB).filter(Models_db.UnidadControlDB.id == id).first()
     if not unidad:
@@ -333,7 +341,7 @@ def actualizar_unidad(id: int, data: UnidadControlCreate, db: Session = Depends(
     return unidad
 
 
-@app.delete("/unidad/{id}")
+@app.delete("/api/unidad/{id}")
 def eliminar_unidad(id: int, db: Session = Depends(get_db)):
     unidad = db.query(Models_db.UnidadControlDB).filter(Models_db.UnidadControlDB.id == id).first()
     if not unidad:
@@ -345,19 +353,19 @@ def eliminar_unidad(id: int, db: Session = Depends(get_db)):
 
 # ── GOD EATER ────────────────────────────────────────────────────────────────
 
-@app.get("/godeater")
+@app.get("/api/godeater")
 def listar_godeater(db: Session = Depends(get_db)):
     return db.query(Models_db.GodEaterDB).all()
 
 
-@app.get("/godeater/rango/{rango}")
+@app.get("/api/godeater/rango/{rango}")
 def filtrar_rango(rango: str, db: Session = Depends(get_db)):
     return db.query(Models_db.GodEaterDB).filter(
         Models_db.GodEaterDB.rango.ilike(rango)
     ).all()
 
 
-@app.get("/godeater/{id}")
+@app.get("/api/godeater/{id}")
 def buscar_godeater(id: int, db: Session = Depends(get_db)):
     godeater = db.query(Models_db.GodEaterDB).filter(Models_db.GodEaterDB.id == id).first()
     if not godeater:
@@ -365,7 +373,7 @@ def buscar_godeater(id: int, db: Session = Depends(get_db)):
     return godeater
 
 
-@app.post("/godeater")
+@app.post("/api/godeater")
 def crear_godeater(data: GodEaterCreate, db: Session = Depends(get_db)):
     nuevo = Models_db.GodEaterDB(
         nombre=data.nombre,
@@ -382,7 +390,7 @@ def crear_godeater(data: GodEaterCreate, db: Session = Depends(get_db)):
     return nuevo
 
 
-@app.put("/godeater/{id}")
+@app.put("/api/godeater/{id}")
 def actualizar_godeater(id: int, data: GodEaterCreate, db: Session = Depends(get_db)):
     godeater = db.query(Models_db.GodEaterDB).filter(Models_db.GodEaterDB.id == id).first()
     if not godeater:
@@ -399,7 +407,7 @@ def actualizar_godeater(id: int, data: GodEaterCreate, db: Session = Depends(get
     return godeater
 
 
-@app.delete("/godeater/{id}")
+@app.delete("/api/godeater/{id}")
 def eliminar_godeater(id: int, db: Session = Depends(get_db)):
     godeater = db.query(Models_db.GodEaterDB).filter(Models_db.GodEaterDB.id == id).first()
     if not godeater:
@@ -409,27 +417,28 @@ def eliminar_godeater(id: int, db: Session = Depends(get_db)):
     return {"mensaje": "GodEater eliminado", "id": id, "nombre": godeater.nombre}
 
 
+# ── MATERIAL ─────────────────────────────────────────────────────────────────
 
-@app.get("/material")
+@app.get("/api/material")
 def listar_materiales(db: Session = Depends(get_db)):
     return db.query(Models_db.MaterialDB).all()
 
 
-@app.get("/material/origen/{origen}")
+@app.get("/api/material/origen/{origen}")
 def filtrar_origen(origen: str, db: Session = Depends(get_db)):
     return db.query(Models_db.MaterialDB).filter(
         Models_db.MaterialDB.origen.ilike(origen)
     ).all()
 
 
-@app.get("/material/rango/{rango}")
-def filtrar_rango_material(rango: int, db: Session = Depends(get_db)):
+@app.get("/api/material/rango/{rango}")
+def filtrar_rango_material(rango: str, db: Session = Depends(get_db)):
     return db.query(Models_db.MaterialDB).filter(
         Models_db.MaterialDB.rango_mision == rango
     ).all()
 
 
-@app.get("/material/{id}")
+@app.get("/api/material/{id}")
 def buscar_material(id: int, db: Session = Depends(get_db)):
     material = db.query(Models_db.MaterialDB).filter(Models_db.MaterialDB.id == id).first()
     if not material:
@@ -437,50 +446,54 @@ def buscar_material(id: int, db: Session = Depends(get_db)):
     return material
 
 
-@app.post("/material")
+@app.post("/api/material")
 def crear_material(data: MaterialCreate, db: Session = Depends(get_db)):
     nuevo = Models_db.MaterialDB(
-        nombre=data.nombre, origen=data.origen.value,
-        rango_mision=data.rango_mision.value, obtenido_de=data.obtenido_de,
+        nombre=data.nombre,
+        origen=data.origen,
+        rango_mision=data.rango_mision,
+        obtenido_de=data.obtenido_de,
         descripcion=data.descripcion,
     )
-    db.add(nuevo);
-    db.commit();
+    db.add(nuevo)
+    db.commit()
     db.refresh(nuevo)
     return nuevo
 
 
-@app.put("/material/{id}")
+@app.put("/api/material/{id}")
 def actualizar_material(id: int, data: MaterialCreate, db: Session = Depends(get_db)):
     material = db.query(Models_db.MaterialDB).filter(Models_db.MaterialDB.id == id).first()
     if not material:
         raise HTTPException(404, "Material no encontrado")
-    material.nombre = data.nombre;
-    material.origen = data.origen.value
-    material.rango_mision = data.rango_mision.value
+    material.nombre = data.nombre
+    material.origen = data.origen
+    material.rango_mision = data.rango_mision
     material.obtenido_de = data.obtenido_de
     material.descripcion = data.descripcion
-    db.commit();
+    db.commit()
     db.refresh(material)
     return material
 
 
-@app.delete("/material/{id}")
+@app.delete("/api/material/{id}")
 def eliminar_material(id: int, db: Session = Depends(get_db)):
     material = db.query(Models_db.MaterialDB).filter(Models_db.MaterialDB.id == id).first()
     if not material:
         raise HTTPException(404, "Material no encontrado")
-    db.delete(material);
+    db.delete(material)
     db.commit()
     return {"mensaje": "Material eliminado", "id": id, "nombre": material.nombre}
 
 
-@app.get("/area")
+# ── AREA ─────────────────────────────────────────────────────────────────────
+
+@app.get("/api/area")
 def listar_areas(db: Session = Depends(get_db)):
     return db.query(Models_db.AreaDB).all()
 
 
-@app.get("/area/{id}")
+@app.get("/api/area/{id}")
 def buscar_area(id: int, db: Session = Depends(get_db)):
     area = db.query(Models_db.AreaDB).filter(Models_db.AreaDB.id == id).first()
     if not area:
@@ -488,7 +501,7 @@ def buscar_area(id: int, db: Session = Depends(get_db)):
     return area
 
 
-@app.post("/area")
+@app.post("/api/area")
 def crear_area(data: AreaCreate, db: Session = Depends(get_db)):
     nuevo = Models_db.AreaDB(
         nombre=data.nombre,
@@ -500,7 +513,7 @@ def crear_area(data: AreaCreate, db: Session = Depends(get_db)):
     return nuevo
 
 
-@app.put("/area/{id}")
+@app.put("/api/area/{id}")
 def actualizar_area(id: int, data: AreaCreate, db: Session = Depends(get_db)):
     area = db.query(Models_db.AreaDB).filter(Models_db.AreaDB.id == id).first()
     if not area:
@@ -512,7 +525,7 @@ def actualizar_area(id: int, data: AreaCreate, db: Session = Depends(get_db)):
     return area
 
 
-@app.delete("/area/{id}")
+@app.delete("/api/area/{id}")
 def eliminar_area(id: int, db: Session = Depends(get_db)):
     area = db.query(Models_db.AreaDB).filter(Models_db.AreaDB.id == id).first()
     if not area:
@@ -521,6 +534,8 @@ def eliminar_area(id: int, db: Session = Depends(get_db)):
     db.commit()
     return {"mensaje": "Área eliminada", "id": id, "nombre": area.nombre}
 
+
+# ── IMÁGENES ─────────────────────────────────────────────────────────────────
 
 class ImagenURL(PydanticBase):
     url: str
@@ -538,7 +553,7 @@ TABLAS_IMAGEN = {
 }
 
 
-@app.put("/imagen/{tipo}/{id}")
+@app.put("/api/imagen/{tipo}/{id}")
 def actualizar_imagen(tipo: str, id: int, data: ImagenURL, db: Session = Depends(get_db)):
     if tipo not in TABLAS_IMAGEN:
         raise HTTPException(400, f"Tipo inválido. Usa: {list(TABLAS_IMAGEN.keys())}")
@@ -552,7 +567,7 @@ def actualizar_imagen(tipo: str, id: int, data: ImagenURL, db: Session = Depends
     return {"mensaje": "Imagen actualizada", "url": registro.imagen}
 
 
-@app.put("/imagen/area/{id}/mapa")
+@app.put("/api/imagen/area/{id}/mapa")
 def actualizar_imagen_mapa(id: int, data: ImagenURL, db: Session = Depends(get_db)):
     area = db.query(Models_db.AreaDB).filter(Models_db.AreaDB.id == id).first()
     if not area:
@@ -563,7 +578,7 @@ def actualizar_imagen_mapa(id: int, data: ImagenURL, db: Session = Depends(get_d
     return {"mensaje": "Imagen de mapa actualizada", "url": area.imagen_mapa}
 
 
-@app.delete("/imagen/{tipo}/{id}")
+@app.delete("/api/imagen/{tipo}/{id}")
 def eliminar_imagen(tipo: str, id: int, db: Session = Depends(get_db)):
     if tipo not in TABLAS_IMAGEN:
         raise HTTPException(400, f"Tipo inválido. Usa: {list(TABLAS_IMAGEN.keys())}")
@@ -578,7 +593,7 @@ def eliminar_imagen(tipo: str, id: int, db: Session = Depends(get_db)):
     return {"mensaje": "Imagen eliminada"}
 
 
-@app.delete("/imagen/area/{id}/mapa")
+@app.delete("/api/imagen/area/{id}/mapa")
 def eliminar_imagen_mapa(id: int, db: Session = Depends(get_db)):
     area = db.query(Models_db.AreaDB).filter(Models_db.AreaDB.id == id).first()
     if not area:
