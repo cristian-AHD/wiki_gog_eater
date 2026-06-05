@@ -4,7 +4,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from Batabase import get_db, engine
 import Models_db
-from Crud import CRUDCSV, Historial
 from model import (
     Aragami, AragamiCreate,
     Espada, EspadaCreate,
@@ -26,6 +25,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── ARAGAMI ──────────────────────────────────────────────────────────────────
 
 @app.get("/aragami")
 def listar_aragami(db: Session = Depends(get_db)):
@@ -85,6 +86,8 @@ def eliminar_aragami(id: int, db: Session = Depends(get_db)):
     return {"mensaje": "Aragami eliminado", "id": id, "nombre": aragami.nombre}
 
 
+# ── ESPADA ──────────────────────────────────────────────────────────────────
+
 @app.get("/espada")
 def listar_espadas(db: Session = Depends(get_db)):
     return db.query(Models_db.EspadaDB).all()
@@ -108,9 +111,13 @@ def buscar_espada(id: int, db: Session = Depends(get_db)):
 @app.post("/espada")
 def crear_espada(data: EspadaCreate, db: Session = Depends(get_db)):
     nuevo = Models_db.EspadaDB(
-        nombre=data.nombre, tipo=data.tipo.value,
-        elementos=[{"elemento": e.elemento.value, "valor": e.valor} for e in data.elementos],
-        sunder=data.sunder, crush=data.crush, pierce=data.pierce,
+        nombre=data.nombre,
+        tipo=data.tipo,
+        elemento=data.elemento,
+        sunder=data.sunder,
+        crush=data.crush,
+        pierce=data.pierce,
+        valor_elemento=data.valor_elemento,
         materiales=data.materiales,
     )
     db.add(nuevo)
@@ -125,11 +132,12 @@ def actualizar_espada(id: int, data: EspadaCreate, db: Session = Depends(get_db)
     if not espada:
         raise HTTPException(404, "Espada no encontrada")
     espada.nombre = data.nombre
-    espada.tipo = data.tipo.value
-    espada.elementos = [{"elemento": e.elemento.value, "valor": e.valor} for e in data.elementos]
+    espada.tipo = data.tipo
+    espada.elemento = data.elemento
     espada.sunder = data.sunder
     espada.crush = data.crush
     espada.pierce = data.pierce
+    espada.valor_elemento = data.valor_elemento
     espada.materiales = data.materiales
     db.commit()
     db.refresh(espada)
@@ -141,12 +149,12 @@ def eliminar_espada(id: int, db: Session = Depends(get_db)):
     espada = db.query(Models_db.EspadaDB).filter(Models_db.EspadaDB.id == id).first()
     if not espada:
         raise HTTPException(404, "Espada no encontrada")
-    db.delete(espada);
+    db.delete(espada)
     db.commit()
     return {"mensaje": "Espada eliminada", "id": id, "nombre": espada.nombre}
 
 
-# ── Escudo ────────────────────────────────────────────────────────────────────
+# ── ESCUDO ──────────────────────────────────────────────────────────────────
 
 @app.get("/escudo")
 def listar_escudos(db: Session = Depends(get_db)):
@@ -171,9 +179,13 @@ def buscar_escudo(id: int, db: Session = Depends(get_db)):
 @app.post("/escudo")
 def crear_escudo(data: EscudoCreate, db: Session = Depends(get_db)):
     nuevo = Models_db.EscudoDB(
-        nombre=data.nombre, tipo=data.tipo.value,
-        elementos=[{"elemento": e.elemento.value, "valor": e.valor} for e in data.elementos],
-        sunder=data.sunder, crush=data.crush, pierce=data.pierce,
+        nombre=data.nombre,
+        tipo=data.tipo,
+        elemento=data.elemento,
+        sunder=data.sunder,
+        crush=data.crush,
+        pierce=data.pierce,
+        valor_elemento=data.valor_elemento,
         materiales=data.materiales,
     )
     db.add(nuevo)
@@ -188,11 +200,12 @@ def actualizar_escudo(id: int, data: EscudoCreate, db: Session = Depends(get_db)
     if not escudo:
         raise HTTPException(404, "Escudo no encontrado")
     escudo.nombre = data.nombre
-    escudo.tipo = data.tipo.value
-    escudo.elementos = [{"elemento": e.elemento.value, "valor": e.valor} for e in data.elementos]
+    escudo.tipo = data.tipo
+    escudo.elemento = data.elemento
     escudo.sunder = data.sunder
     escudo.crush = data.crush
     escudo.pierce = data.pierce
+    escudo.valor_elemento = data.valor_elemento
     escudo.materiales = data.materiales
     db.commit()
     db.refresh(escudo)
@@ -204,11 +217,12 @@ def eliminar_escudo(id: int, db: Session = Depends(get_db)):
     escudo = db.query(Models_db.EscudoDB).filter(Models_db.EscudoDB.id == id).first()
     if not escudo:
         raise HTTPException(404, "Escudo no encontrado")
-    db.delete(escudo);
+    db.delete(escudo)
     db.commit()
     return {"mensaje": "Escudo eliminado", "id": id, "nombre": escudo.nombre}
 
 
+# ── PISTOLA ──────────────────────────────────────────────────────────────────
 
 @app.get("/pistola")
 def listar_pistolas(db: Session = Depends(get_db)):
@@ -233,9 +247,13 @@ def buscar_pistola(id: int, db: Session = Depends(get_db)):
 @app.post("/pistola")
 def crear_pistola(data: PistolaCreate, db: Session = Depends(get_db)):
     nuevo = Models_db.PistolDB(
-        nombre=data.nombre, tipo=data.tipo.value,
-        elementos=[{"elemento": e.elemento.value, "valor": e.valor} for e in data.elementos],
-        sunder=data.sunder, crush=data.crush, pierce=data.pierce,
+        nombre=data.nombre,
+        tipo=data.tipo,
+        elemento=data.elemento,
+        sunder=data.sunder,
+        crush=data.crush,
+        pierce=data.pierce,
+        valor_elemento=data.valor_elemento,
         materiales=data.materiales,
     )
     db.add(nuevo)
@@ -250,11 +268,12 @@ def actualizar_pistola(id: int, data: PistolaCreate, db: Session = Depends(get_d
     if not pistola:
         raise HTTPException(404, "Pistola no encontrada")
     pistola.nombre = data.nombre
-    pistola.tipo = data.tipo.value
-    pistola.elementos = [{"elemento": e.elemento.value, "valor": e.valor} for e in data.elementos]
+    pistola.tipo = data.tipo
+    pistola.elemento = data.elemento
     pistola.sunder = data.sunder
     pistola.crush = data.crush
     pistola.pierce = data.pierce
+    pistola.valor_elemento = data.valor_elemento
     pistola.materiales = data.materiales
     db.commit()
     db.refresh(pistola)
@@ -266,12 +285,12 @@ def eliminar_pistola(id: int, db: Session = Depends(get_db)):
     pistola = db.query(Models_db.PistolDB).filter(Models_db.PistolDB.id == id).first()
     if not pistola:
         raise HTTPException(404, "Pistola no encontrada")
-    db.delete(pistola);
+    db.delete(pistola)
     db.commit()
     return {"mensaje": "Pistola eliminada", "id": id, "nombre": pistola.nombre}
 
 
-# ── Unidad de Control ─────────────────────────────────────────────────────────
+# ── UNIDAD DE CONTROL ────────────────────────────────────────────────────────
 
 @app.get("/unidad")
 def listar_unidades(db: Session = Depends(get_db)):
@@ -289,11 +308,13 @@ def buscar_unidad(id: int, db: Session = Depends(get_db)):
 @app.post("/unidad")
 def crear_unidad(data: UnidadControlCreate, db: Session = Depends(get_db)):
     nuevo = Models_db.UnidadControlDB(
-        nombre=data.nombre, tipo=data.tipo.value,
-        buffs=data.buffs, materiales=data.materiales,
+        nombre=data.nombre,
+        tipo=data.tipo,
+        buffs=data.buffs,
+        materiales=data.materiales,
     )
-    db.add(nuevo);
-    db.commit();
+    db.add(nuevo)
+    db.commit()
     db.refresh(nuevo)
     return nuevo
 
@@ -303,11 +324,11 @@ def actualizar_unidad(id: int, data: UnidadControlCreate, db: Session = Depends(
     unidad = db.query(Models_db.UnidadControlDB).filter(Models_db.UnidadControlDB.id == id).first()
     if not unidad:
         raise HTTPException(404, "Unidad de control no encontrada")
-    unidad.nombre = data.nombre;
-    unidad.tipo = data.tipo.value
-    unidad.buffs = data.buffs;
+    unidad.nombre = data.nombre
+    unidad.tipo = data.tipo
+    unidad.buffs = data.buffs
     unidad.materiales = data.materiales
-    db.commit();
+    db.commit()
     db.refresh(unidad)
     return unidad
 
@@ -317,12 +338,12 @@ def eliminar_unidad(id: int, db: Session = Depends(get_db)):
     unidad = db.query(Models_db.UnidadControlDB).filter(Models_db.UnidadControlDB.id == id).first()
     if not unidad:
         raise HTTPException(404, "Unidad de control no encontrada")
-    db.delete(unidad);
+    db.delete(unidad)
     db.commit()
     return {"mensaje": "Unidad eliminada", "id": id, "nombre": unidad.nombre}
 
 
-# ── GodEater ──────────────────────────────────────────────────────────────────
+# ── GOD EATER ────────────────────────────────────────────────────────────────
 
 @app.get("/godeater")
 def listar_godeater(db: Session = Depends(get_db)):
@@ -347,11 +368,16 @@ def buscar_godeater(id: int, db: Session = Depends(get_db)):
 @app.post("/godeater")
 def crear_godeater(data: GodEaterCreate, db: Session = Depends(get_db)):
     nuevo = Models_db.GodEaterDB(
-        nombre=data.nombre, rango=data.rango,
+        nombre=data.nombre,
+        rango=data.rango,
+        espada_id=data.espada_id,
+        escudo_id=data.escudo_id,
+        pistola_id=data.pistola_id,
+        unidad_id=data.unidad_id,
         descripcion=data.descripcion,
     )
-    db.add(nuevo);
-    db.commit();
+    db.add(nuevo)
+    db.commit()
     db.refresh(nuevo)
     return nuevo
 
@@ -361,10 +387,14 @@ def actualizar_godeater(id: int, data: GodEaterCreate, db: Session = Depends(get
     godeater = db.query(Models_db.GodEaterDB).filter(Models_db.GodEaterDB.id == id).first()
     if not godeater:
         raise HTTPException(404, "GodEater no encontrado")
-    godeater.nombre = data.nombre;
+    godeater.nombre = data.nombre
     godeater.rango = data.rango
+    godeater.espada_id = data.espada_id
+    godeater.escudo_id = data.escudo_id
+    godeater.pistola_id = data.pistola_id
+    godeater.unidad_id = data.unidad_id
     godeater.descripcion = data.descripcion
-    db.commit();
+    db.commit()
     db.refresh(godeater)
     return godeater
 
@@ -374,12 +404,11 @@ def eliminar_godeater(id: int, db: Session = Depends(get_db)):
     godeater = db.query(Models_db.GodEaterDB).filter(Models_db.GodEaterDB.id == id).first()
     if not godeater:
         raise HTTPException(404, "GodEater no encontrado")
-    db.delete(godeater);
+    db.delete(godeater)
     db.commit()
     return {"mensaje": "GodEater eliminado", "id": id, "nombre": godeater.nombre}
 
 
-# ── Material ──────────────────────────────────────────────────────────────────
 
 @app.get("/material")
 def listar_materiales(db: Session = Depends(get_db)):
@@ -412,7 +441,7 @@ def buscar_material(id: int, db: Session = Depends(get_db)):
 def crear_material(data: MaterialCreate, db: Session = Depends(get_db)):
     nuevo = Models_db.MaterialDB(
         nombre=data.nombre, origen=data.origen.value,
-        rango_mision=data.rango_mision, obtenido_de=data.obtenido_de,
+        rango_mision=data.rango_mision.value, obtenido_de=data.obtenido_de,
         descripcion=data.descripcion,
     )
     db.add(nuevo);
@@ -428,7 +457,7 @@ def actualizar_material(id: int, data: MaterialCreate, db: Session = Depends(get
         raise HTTPException(404, "Material no encontrado")
     material.nombre = data.nombre;
     material.origen = data.origen.value
-    material.rango_mision = data.rango_mision;
+    material.rango_mision = data.rango_mision.value
     material.obtenido_de = data.obtenido_de
     material.descripcion = data.descripcion
     db.commit();
@@ -461,9 +490,12 @@ def buscar_area(id: int, db: Session = Depends(get_db)):
 
 @app.post("/area")
 def crear_area(data: AreaCreate, db: Session = Depends(get_db)):
-    nuevo = Models_db.AreaDB(nombre=data.nombre, descripcion=data.descripcion)
-    db.add(nuevo);
-    db.commit();
+    nuevo = Models_db.AreaDB(
+        nombre=data.nombre,
+        descripcion=data.descripcion,
+    )
+    db.add(nuevo)
+    db.commit()
     db.refresh(nuevo)
     return nuevo
 
@@ -473,9 +505,9 @@ def actualizar_area(id: int, data: AreaCreate, db: Session = Depends(get_db)):
     area = db.query(Models_db.AreaDB).filter(Models_db.AreaDB.id == id).first()
     if not area:
         raise HTTPException(404, "Área no encontrada")
-    area.nombre = data.nombre;
+    area.nombre = data.nombre
     area.descripcion = data.descripcion
-    db.commit();
+    db.commit()
     db.refresh(area)
     return area
 
@@ -485,7 +517,7 @@ def eliminar_area(id: int, db: Session = Depends(get_db)):
     area = db.query(Models_db.AreaDB).filter(Models_db.AreaDB.id == id).first()
     if not area:
         raise HTTPException(404, "Área no encontrada")
-    db.delete(area);
+    db.delete(area)
     db.commit()
     return {"mensaje": "Área eliminada", "id": id, "nombre": area.nombre}
 
@@ -520,6 +552,17 @@ def actualizar_imagen(tipo: str, id: int, data: ImagenURL, db: Session = Depends
     return {"mensaje": "Imagen actualizada", "url": registro.imagen}
 
 
+@app.put("/imagen/area/{id}/mapa")
+def actualizar_imagen_mapa(id: int, data: ImagenURL, db: Session = Depends(get_db)):
+    area = db.query(Models_db.AreaDB).filter(Models_db.AreaDB.id == id).first()
+    if not area:
+        raise HTTPException(404, "Área no encontrada")
+    area.imagen_mapa = data.url
+    db.commit()
+    db.refresh(area)
+    return {"mensaje": "Imagen de mapa actualizada", "url": area.imagen_mapa}
+
+
 @app.delete("/imagen/{tipo}/{id}")
 def eliminar_imagen(tipo: str, id: int, db: Session = Depends(get_db)):
     if tipo not in TABLAS_IMAGEN:
@@ -533,3 +576,15 @@ def eliminar_imagen(tipo: str, id: int, db: Session = Depends(get_db)):
     registro.imagen = None
     db.commit()
     return {"mensaje": "Imagen eliminada"}
+
+
+@app.delete("/imagen/area/{id}/mapa")
+def eliminar_imagen_mapa(id: int, db: Session = Depends(get_db)):
+    area = db.query(Models_db.AreaDB).filter(Models_db.AreaDB.id == id).first()
+    if not area:
+        raise HTTPException(404, "Área no encontrada")
+    if not area.imagen_mapa:
+        raise HTTPException(404, "Esta área no tiene imagen de mapa")
+    area.imagen_mapa = None
+    db.commit()
+    return {"mensaje": "Imagen de mapa eliminada"}
