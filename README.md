@@ -9,7 +9,7 @@ Permite consultar información sobre Aragami, armas, God Eaters, áreas y materi
 - **SQLAlchemy** — ORM para manejo de base de datos
 - **PostgreSQL (Neon)** — Base de datos en la nube
 - **Pydantic** — Validación de datos
-- **HTML + JavaScript** — Frontend de la wiki
+- **HTML ** — Frontend de la wiki
 - **Python 3.13**
 
 ## Modelos
