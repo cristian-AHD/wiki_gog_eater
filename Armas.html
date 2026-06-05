@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Armas - God Eater Wiki</title>
-        <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -62,7 +62,7 @@ function mostrar(lista) {
             <td>${a.id}</td>
             <td>${a.nombre}</td>
             <td>${a.tipo}</td>
-            <td>${a.elemento || "-"}</td>
+            <td>${a.elementos && a.elementos.length ? a.elementos.map(e => e.elemento).join(", ") : "-"}</td>
             <td>${a.sunder ?? "-"}</td>
             <td>${a.crush ?? "-"}</td>
             <td>${a.pierce ?? "-"}</td>
@@ -86,7 +86,10 @@ async function verDetalle(id) {
     let html = `<h2>${a.nombre}</h2>`;
     if (a.imagen) html += `<img src="${a.imagen}" alt="${a.nombre}" width="300"><br>`;
     html += `<p><strong>Tipo:</strong> ${a.tipo}</p>`;
-    if (a.elemento) html += `<p><strong>Elemento:</strong> ${a.elemento} (${a.valor_elemento} pts)</p>`;
+    if (a.elementos && a.elementos.length > 0) {
+        const elemsStr = a.elementos.map(e => `${e.elemento} (${e.valor} pts)`).join(" | ");
+        html += `<p><strong>Elementos:</strong> ${elemsStr}</p>`;
+    }
     if (a.sunder !== undefined) {
         html += `<p><strong>Sunder:</strong> ${a.sunder} | <strong>Crush:</strong> ${a.crush} | <strong>Pierce:</strong> ${a.pierce}</p>`;
     }
